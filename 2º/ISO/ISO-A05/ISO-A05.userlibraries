@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="mysql-connector-java-8.0.26">
+    <archive path="C:/Users/Marcos/Documents/Dev/IntelliJIdeaProjects/ISO-A05/lib/mysql-connector-java-8.0.26.jar" />
+  </library>
+  <library name="mysql-connector-java-8.0.27">
+    <archive path="C:/Users/Marcos/Documents/Dev/IntelliJIdeaProjects/ISO-A05/lib/mysql-connector-java-8.0.26.jar" />
+  </library>
+</eclipse-userlibraries>
+

@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lógica Simbólica · Guía + Cuestionarios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;
+  --paper-2:#F2EFE6;
+  --ink:#14213D;
+  --ink-soft:#3C4663;
+  --line:#DAD4C4;
+  --teal:#1F6F6B;
+  --teal-soft:#E2EFEE;
+  --clay:#BC4B33;
+  --amber:#C98A24;
+  --green:#2E7D58;
+  --green-soft:#E4F1EA;
+  --red:#B23B33;
+  --red-soft:#F6E5E2;
+  --card:#FFFFFF;
+  --shadow:0 1px 0 rgba(20,33,61,.04), 0 8px 24px -16px rgba(20,33,61,.18);
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --serif:'Spectral',Georgia,'Times New Roman',serif;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* ---------- top bar ---------- */
+header.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(251,250,246,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.top-inner{display:flex;align-items:center;gap:18px;padding:14px 20px;max-width:1120px;margin:0 auto;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px;margin-right:auto}
+.turnstile{font-family:var(--mono);font-weight:600;color:var(--teal);font-size:1.45rem;letter-spacing:-1px}
+.brand h1{font-family:var(--serif);font-weight:700;font-size:1.18rem;margin:0;letter-spacing:.2px}
+.brand .sub{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.14em;margin-top:2px}
+.tabs{display:flex;gap:6px;background:var(--paper-2);padding:4px;border-radius:11px;border:1px solid var(--line)}
+.tab{
+  border:0;background:transparent;cursor:pointer;font-family:var(--sans);
+  font-weight:600;font-size:.86rem;color:var(--ink-soft);
+  padding:8px 16px;border-radius:8px;display:flex;align-items:center;gap:7px;transition:.18s;
+}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--ink);color:#fff;box-shadow:var(--shadow)}
+
+/* ---------- hero ---------- */
+.hero{padding:42px 0 26px}
+.hero .eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:14px}
+.hero h2{font-family:var(--serif);font-size:clamp(1.9rem,4.2vw,3rem);line-height:1.06;margin:0 0 14px;font-weight:700;max-width:18ch}
+.hero h2 em{font-style:italic;color:var(--teal)}
+.hero p{max-width:60ch;color:var(--ink-soft);font-size:1.02rem;margin:0}
+.hero .formula-strip{
+  margin-top:22px;font-family:var(--mono);font-size:.95rem;color:var(--ink-soft);
+  display:flex;gap:10px 22px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line)
+}
+.hero .formula-strip b{color:var(--ink);font-weight:600}
+
+/* ---------- view switching ---------- */
+.view{display:none}
+.view.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- study layout ---------- */
+.study-grid{display:grid;grid-template-columns:226px 1fr;gap:34px;align-items:start;padding-bottom:80px}
+nav.toc{position:sticky;top:84px}
+.toc-search{position:relative;margin-bottom:16px}
+.toc-search input{
+  width:100%;padding:10px 12px 10px 34px;border:1px solid var(--line);border-radius:9px;
+  background:var(--card);font-family:var(--sans);font-size:.86rem;color:var(--ink)
+}
+.toc-search input:focus{outline:2px solid var(--teal);outline-offset:0;border-color:var(--teal)}
+.toc-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.45}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:s}
+.toc li{counter-increment:s}
+.toc a{
+  display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink-soft);
+  font-size:.85rem;padding:7px 9px;border-radius:8px;line-height:1.3;transition:.15s
+}
+.toc a::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:.72rem;color:var(--teal);opacity:.7}
+.toc a:hover{background:var(--paper-2);color:var(--ink)}
+.toc a.active{background:var(--ink);color:#fff}
+.toc a.active::before{color:#9fd6d2;opacity:1}
+
+.freq-legend{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:.74rem;color:var(--ink-soft)}
+.freq-legend div{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.stars{font-family:var(--mono);letter-spacing:1px}
+.s3{color:var(--clay)}.s2{color:var(--amber)}.s1{color:var(--teal)}
+
+/* ---------- section + cards ---------- */
+.sec{margin-bottom:46px;scroll-margin-top:84px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.sec-head .num{font-family:var(--mono);font-size:.9rem;color:var(--teal);font-weight:600}
+.sec-head h3{font-family:var(--serif);font-size:1.5rem;margin:0;font-weight:700}
+
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow);transition:.2s
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:8px}
+.card h4{font-family:var(--serif);font-size:1.16rem;margin:0;font-weight:600;line-height:1.25}
+.badge{font-family:var(--mono);font-size:.72rem;letter-spacing:1px;white-space:nowrap;flex-shrink:0;margin-top:3px}
+.card p{margin:8px 0;color:var(--ink-soft);font-size:.95rem}
+.card p:first-of-type{color:var(--ink)}
+.card ol,.card ul{margin:8px 0;padding-left:20px;color:var(--ink-soft);font-size:.93rem}
+.card li{margin:4px 0}
+.fx{font-family:var(--mono);background:var(--paper-2);padding:1px 5px;border-radius:5px;font-size:.9em;color:var(--ink);white-space:nowrap}
+.block{
+  font-family:var(--mono);background:#0F1830;color:#E8ECF5;border-radius:9px;
+  padding:13px 15px;margin:11px 0;font-size:.86rem;line-height:1.7;overflow-x:auto;white-space:pre
+}
+.block .k{color:#7FD1CC}.block .c{color:#9aa3bd}
+.note{display:flex;gap:10px;background:var(--teal-soft);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:11px 14px;margin-top:12px;font-size:.88rem;color:#16524f}
+.warn{display:flex;gap:10px;background:#FBF1DE;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:11px 14px;margin-top:12px;font-size:.88rem;color:#7a5a16}
+.note b,.warn b{font-weight:600}
+
+/* ---------- quiz ---------- */
+.quiz-wrap{padding:8px 0 90px;max-width:760px;margin:0 auto}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:8px}
+.pick{
+  text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:20px;cursor:pointer;box-shadow:var(--shadow);transition:.18s;font-family:var(--sans);color:var(--ink)
+}
+.pick:hover{transform:translateY(-3px);border-color:var(--teal)}
+.pick .pico{font-family:var(--mono);font-size:1.5rem;color:var(--teal);margin-bottom:10px}
+.pick h4{font-family:var(--serif);font-size:1.15rem;margin:0 0 6px;font-weight:600}
+.pick p{margin:0;font-size:.84rem;color:var(--ink-soft)}
+.pick .count{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:.72rem;background:var(--paper-2);padding:3px 9px;border-radius:20px;color:var(--ink-soft)}
+
+.runner-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+.runner-head .rtitle{font-family:var(--serif);font-size:1.3rem;font-weight:700}
+.qmeta{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
+.btn-ghost{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:var(--sans);font-weight:600;font-size:.8rem;padding:7px 13px;border-radius:8px;cursor:pointer;transition:.15s}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.progress{height:6px;background:var(--paper-2);border-radius:20px;overflow:hidden;margin:12px 0 26px;border:1px solid var(--line)}
+.progress > i{display:block;height:100%;background:var(--teal);width:0;transition:width .35s ease;border-radius:20px}
+
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)}
+.qnum{font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.qtext{font-family:var(--serif);font-size:1.22rem;line-height:1.4;margin:0 0 20px;font-weight:600}
+.qtext .fx{font-size:.92em}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;
+  background:var(--paper);border:1.5px solid var(--line);border-radius:11px;
+  padding:13px 15px;cursor:pointer;font-family:var(--sans);font-size:.95rem;color:var(--ink);
+  transition:.15s;line-height:1.4
+}
+.opt:hover:not(.locked){border-color:var(--teal);background:var(--teal-soft)}
+.opt .key{font-family:var(--mono);font-weight:600;color:var(--ink-soft);flex-shrink:0;width:18px}
+.opt.locked{cursor:default}
+.opt.correct{background:var(--green-soft);border-color:var(--green)}
+.opt.correct .key{color:var(--green)}
+.opt.wrong{background:var(--red-soft);border-color:var(--red)}
+.opt.wrong .key{color:var(--red)}
+.opt .mark{margin-left:auto;font-family:var(--mono);font-weight:600;flex-shrink:0}
+.opt.correct .mark{color:var(--green)}
+.opt.wrong .mark{color:var(--red)}
+
+.explain{margin-top:18px;border-radius:11px;padding:14px 16px;font-size:.9rem;display:none;line-height:1.5}
+.explain.show{display:block;animation:fade .25s}
+.explain.ok{background:var(--green-soft);color:#1c5a3e}
+.explain.no{background:var(--red-soft);color:#8a2e26}
+.explain b{font-weight:600}
+.explain .lab{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:5px;opacity:.8}
+
+.runner-foot{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:12px}
+.btn-primary{background:var(--ink);color:#fff;border:0;font-family:var(--sans);font-weight:600;font-size:.92rem;padding:12px 26px;border-radius:10px;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+.btn-primary:hover{background:#0c1730}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.scoretick{font-family:var(--mono);font-size:.82rem;color:var(--ink-soft)}
+
+/* ---------- results ---------- */
+.result{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:34px;text-align:center;box-shadow:var(--shadow)}
+.result .big{font-family:var(--serif);font-size:3.4rem;font-weight:700;line-height:1;color:var(--teal)}
+.result .big small{font-size:1.3rem;color:var(--ink-soft);font-weight:400}
+.result h3{font-family:var(--serif);font-size:1.5rem;margin:14px 0 6px}
+.result p{color:var(--ink-soft);margin:0 auto;max-width:42ch}
+.ring{width:140px;height:140px;margin:0 auto 6px}
+.review{margin-top:26px;text-align:left}
+.review h4{font-family:var(--serif);font-size:1.1rem;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.rev-item{padding:13px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.rev-item .q{font-weight:600;margin-bottom:6px}
+.rev-item .a{color:var(--ink-soft)}
+.rev-item .a.good{color:var(--green)}
+.result-actions{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+
+footer.foot{border-top:1px solid var(--line);padding:26px 0;color:var(--ink-soft);font-size:.78rem;text-align:center}
+
+@media (max-width:760px){
+  .study-grid{grid-template-columns:1fr}
+  nav.toc{position:static;margin-bottom:8px}
+  .toc ol{display:flex;flex-wrap:wrap;gap:4px}
+  .toc a{font-size:.78rem;padding:6px 9px;border:1px solid var(--line)}
+  .freq-legend{display:none}
+  .brand h1{font-size:1rem}
+  .tab span{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="turnstile">⊢</span>
+      <div>
+        <h1>Lógica Simbólica</h1>
+        <div class="sub">2.º Ing. Informática · ESI · UCLM</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="guia">📖 <span>Guía de estudio</span></button>
+      <button class="tab" data-view="quiz">✍️ <span>Cuestionarios</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== GUÍA ===================== -->
+<section id="view-guia" class="view active">
+  <div class="wrap hero">
+    <div class="eyebrow">Repaso para el examen · definiciones formales</div>
+    <h2>De las <em>premisas</em> a la conclusión, sin atajos informales.</h2>
+    <p>Todas las definiciones clave de proposiciones y predicados, con la formulación exacta que pide el examen. Busca, filtra por frecuencia y salta directo al concepto. El examen penaliza las definiciones incompletas: responde formal, aplica al caso y justifica.</p>
+    <div class="formula-strip">
+      <span><b>⊢</b> sintáctico (demostrable)</span>
+      <span><b>⊨</b> semántico (válido)</span>
+      <span><b>Γ</b> conjunto de premisas</span>
+      <span><b>ϑ</b> valoración</span>
+      <span><b>∀ ∃</b> cuantificadores</span>
+    </div>
+  </div>
+
+  <div class="wrap study-grid">
+    <nav class="toc">
+      <div class="toc-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input id="search" type="text" placeholder="Buscar definición…" autocomplete="off">
+      </div>
+      <ol id="toc-list"></ol>
+      <div class="freq-legend">
+        <div><span class="stars s3">★★★</span> Muy frecuente</div>
+        <div><span class="stars s2">★★</span> Frecuente</div>
+        <div><span class="stars s1">★</span> Ocasional</div>
+      </div>
+    </nav>
+    <main id="guide-main"></main>
+  </div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section id="view-quiz" class="view">
+  <div class="wrap hero" id="quiz-hero">
+    <div class="eyebrow">Practica · respuesta inmediata · con explicación</div>
+    <h2>Pon a prueba lo que <em>de verdad</em> sabes.</h2>
+    <p>Dos pruebas de autocontrol oficiales (con sus soluciones verificadas) y un banco extra de preguntas estilo examen, extrapoladas de la teoría. Cada respuesta se corrige al instante y te explica el porqué.</p>
+  </div>
+
+  <div class="wrap quiz-wrap">
+    <div id="quiz-pick">
+      <div class="pick-grid" id="pick-grid"></div>
+    </div>
+    <div id="quiz-runner" style="display:none"></div>
+  </div>
+</section>
+
+<footer class="foot wrap">
+  Herramienta de estudio generada a partir de los apuntes (TeoriaLogica2.0, Definiciones de examen) y las pruebas de autocontrol 1 y 2. Verifica siempre con tu material oficial.
+</footer>
+
+<script>
+/* =================================================================
+   DATOS · GUÍA DE ESTUDIO
+   ================================================================= */
+const GUIDE = [
+{
+  id:"general", num:"01", title:"Conceptos generales",
+  items:[
+    {t:"La lógica", f:1, body:`<p>La lógica investiga la <b>relación de consecuencia</b> que se da entre una serie de premisas y la conclusión de un argumento correcto.</p>`},
+    {t:"Argumento", f:1, body:`<p>Un <b>argumento</b> es un sistema de enunciados de un lenguaje determinado: una serie de premisas y una conclusión.</p>
+      <div class="warn"><span>⚠️</span><span>Sus enunciados son <b>declarativos</b>. Una premisa <b>no</b> puede expresar una orden ni una pregunta (trampa de examen).</span></div>`},
+    {t:"Argumento correcto", f:3, body:`<p>Un argumento es <b>correcto</b> si y solo si <b>no es posible</b> que sus premisas sean verdaderas y su conclusión falsa.</p>
+      <p>Equivalente: es correcto si existe <b>relación de consecuencia lógica</b> entre la conclusión y sus premisas; incorrecto en caso contrario.</p>
+      <div class="warn"><span>⚠️</span><span>El examen penaliza decir solo «la conclusión se sigue de las premisas». Hay que definir formalmente qué es <b>consecuencia lógica</b>.</span></div>`},
+    {t:"Argumento incorrecto", f:2, body:`<p>Es <b>incorrecto</b> si existe una circunstancia concebible que haga <b>verdaderas las premisas y falsa la conclusión</b> (un contraejemplo).</p>`},
+    {t:"Enunciado analítico / sintético", f:1, body:`<p><b>Analítico:</b> es verdadero en cualquier circunstancia concebible (verdad necesaria → una tautología).</p>
+      <p><b>Sintético:</b> su verdad depende de los hechos del mundo (verdad contingente).</p>
+      <div class="note"><span>🔗</span><span>Un argumento <span class="fx">A₁,…,Aₙ ∴ C</span> es correcto sii «Si A₁ y … y Aₙ entonces C» es <b>analítico</b>.</span></div>`},
+    {t:"Sintaxis vs. semántica", f:2, body:`<p>La lógica se divide en dos perspectivas:</p>
+      <ul>
+        <li><b>Sintáctica</b> (<span class="fx">⊢</span>): estructuras deductivas y reglas de inferencia. → Teoría de la demostración.</li>
+        <li><b>Semántica</b> (<span class="fx">⊨</span>): significados V/F e interpretaciones. → Teoría de modelos.</li>
+      </ul>`},
+    {t:"Propiedades formales de un sistema", f:3, body:`<ul>
+        <li><b>Consistencia:</b> no hay contradicciones: no existe A con <span class="fx">⊢A</span> y <span class="fx">⊢¬A</span>.</li>
+        <li><b>Corrección (soundness):</b> si <span class="fx">⊢A</span> entonces <span class="fx">⊨A</span> (todo lo demostrable es válido).</li>
+        <li><b>Completitud:</b> si <span class="fx">⊨A</span> entonces <span class="fx">⊢A</span> (todo lo válido es demostrable).</li>
+        <li><b>Decidibilidad:</b> existe un algoritmo que decide en tiempo finito si A es teorema.</li>
+      </ul>
+      <div class="warn"><span>⚠️</span><span><b>L</b> (proposiciones): consistente, correcto, completo y <b>decidible</b>. <b>K<sub>L</sub></b> (predicados): consistente, correcto, completo pero <b>indecidible</b> (solo semidecidible).</span></div>`}
+  ]
+},
+{
+  id:"prop", num:"02", title:"Lógica de proposiciones",
+  items:[
+    {t:"Forma enunciativa", f:2, body:`<p>Expresión con variables de enunciado y conectivas, construible con:</p>
+      <ol>
+        <li>Toda letra enunciativa p, q, r, … es una forma enunciativa.</li>
+        <li>Si A y B lo son, también: <span class="fx">(¬A), (¬B), (A∧B), (A∨B), (A→B), (A↔B)</span>.</li>
+        <li>Solo lo son las que cumplen 1 y 2.</li>
+      </ol>`},
+    {t:"Grado de una forma enunciativa", f:1, body:`<p>Aplicación de las formas enunciativas a ℕ:</p>
+      <ul>
+        <li>grado(A) = 0 si A es letra enunciativa.</li>
+        <li>grado(¬A) = 1 + grado(A).</li>
+        <li>grado(A∗B) = 1 + grado(A) + grado(B), para ∗ ∈ {∧,∨,→,↔}.</li>
+      </ul>
+      <div class="note"><span>🧮</span><span>Ej.: grado de <span class="fx">¬(p→(q∧r))</span> = 1+[1+0+(1+0+0)] = <b>3</b>.</span></div>`},
+    {t:"Atribución veritativa α", f:3, body:`<p>Dada una forma enunciativa A, una <b>atribución veritativa</b> es una asignación α de valores de verdad a sus variables:</p>
+      <div class="block">α : {p₁, p₂, …, pₙ} ⟶ {V, F}</div>
+      <div class="warn"><span>⚠️</span><span>Solo asigna V/F a las <b>variables</b>. No confundir con la valoración, que la extiende a <b>toda</b> la fórmula.</span></div>`},
+    {t:"Valoración ϑ (inductiva)", f:3, body:`<p>Dada α, una <b>valoración</b> ϑ<sub>α</sub> tiene por dominio las formas enunciativas y rango {V,F}, tal que:</p>
+      <div class="block"><span class="k">1.</span> ϑ(A) = α(A)            <span class="c">si A es variable</span>
+<span class="k">2.</span> ϑ(¬A) = f¬(ϑ(A))
+<span class="k">3.</span> ϑ(A∧B) = f∧(ϑ(A),ϑ(B))
+<span class="k">4.</span> ϑ(A∨B) = f∨(ϑ(A),ϑ(B))
+<span class="k">5.</span> ϑ(A→B) = f→(ϑ(A),ϑ(B))
+<span class="k">6.</span> ϑ(A↔B) = f↔(ϑ(A),ϑ(B))</div>
+      <div class="note"><span>🧭</span><span>Definición inductiva: se evalúa <b>de dentro hacia afuera</b>. ϑ(A→B)=F solo si ϑ(A)=V y ϑ(B)=F; ϑ(A↔B)=V sii ϑ(A)=ϑ(B).</span></div>`},
+    {t:"Tautología, contradicción, contingencia", f:2, body:`<ul>
+        <li><b>Tautología:</b> toma V bajo <b>toda</b> valoración.</li>
+        <li><b>Contradicción:</b> toma F bajo <b>toda</b> valoración.</li>
+        <li><b>Contingencia:</b> V para unas valoraciones y F para otras.</li>
+      </ul>`},
+    {t:"Equivalencia lógica (prop.)", f:2, body:`<p>A y B son <b>lógicamente equivalentes</b> (<span class="fx">A ⟺ B</span>) sii para toda valoración ϑ, ϑ(A) = ϑ(B). Equivale a que f<sub>A</sub> y f<sub>B</sub> sean la misma función de verdad.</p>
+      <p><b>Prop.:</b> A ⟺ B sii <span class="fx">(A↔B)</span> es una tautología.</p>`},
+    {t:"Forma argumentativa y validez", f:2, body:`<p><b>Forma argumentativa:</b> sucesión finita de formas enunciativas; la última es la conclusión y el resto las premisas.</p>
+      <p><b>Válida:</b> <span class="fx">A₁,…,Aₙ ∴ A</span> es <b>inválida</b> si existe una valoración con todas las Aᵢ a V y A a F. En otro caso, válida.</p>`},
+    {t:"Consecuencia lógica (prop.)", f:3, body:`<p>Dado Γ = {A₁,…,Aₙ} y A: A es <b>consecuencia lógica</b> de Γ sii para toda valoración ϑ tal que ϑ(Aᵢ)=V para cada Aᵢ ∈ Γ, entonces ϑ(A)=V.</p>
+      <p><b>Prop.:</b> <span class="fx">{A₁,…,Aₙ ∴ A}</span> es válida sii <span class="fx">(A₁∧…∧Aₙ → A)</span> es una tautología.</p>`},
+    {t:"Conjunto adecuado de conectivas", f:1, body:`<p>Conjunto tal que <b>toda</b> función veritativa puede representarse usando solo sus conectivas.</p>
+      <p>Adecuados: {¬,∧,∨}, {¬,∧}, {¬,∨}, {¬,→}, <b>{ | }</b> y <b>{ ↓ }</b>.</p>
+      <ul>
+        <li><b>Barra de Sheffer |</b>: A|B ⟺ ¬(A∧B) — función <b>NAND</b>. ¬A ⟺ A|A.</li>
+        <li><b>Barra de Peirce ↓</b>: A↓B ⟺ ¬(A∨B) — función <b>NOR</b>. ¬A ⟺ A↓A.</li>
+      </ul>
+      <div class="note"><span>💾</span><span>{ | } y { ↓ } son adecuados de <b>un solo elemento</b> → todo circuito lógico con una única puerta.</span></div>`}
+  ]
+},
+{
+  id:"sistemas", num:"03", title:"Sistemas formales L y K_L",
+  items:[
+    {t:"Sistema formal L (enunciados)", f:2, body:`<p><b>Vocabulario:</b> <span class="fx">{¬, →, (, ), p₁, p₂, …}</span></p>
+      <p><b>fbf's:</b> p₁,p₂,… son fbf; si A,B son fbf → <span class="fx">¬A</span> y <span class="fx">A→B</span> lo son.</p>
+      <p><b>Abreviaturas:</b> (A∧B)≝¬(A→¬B); (A∨B)≝(¬A→B); (A↔B)≝¬((A→B)→¬(B→A)).</p>
+      <p><b>Axiomas:</b></p>
+      <div class="block"><span class="k">L1</span>  (A → (B → A))
+<span class="k">L2</span>  ((A→(B→C)) → ((A→B)→(A→C)))
+<span class="k">L3</span>  ((¬A→¬B) → (B→A))</div>
+      <p><b>Regla de inferencia:</b> Modus Ponens (MP): de A y (A→B) se infiere B.</p>`},
+    {t:"Deducción y demostración en L", f:1, body:`<p><b>Deducción</b> desde Γ: sucesión finita A₁,…,Aₙ donde cada Aᵢ es (1) axioma de L, (2) Aᵢ∈Γ, o (3) inferida por MP de dos anteriores.</p>
+      <p><b>Demostración:</b> deducción <b>sin premisas</b>. Si A es el último miembro, A es <b>teorema</b> de L: <span class="fx">⊢<sub>L</sub> A</span>.</p>`},
+    {t:"Teorema de la deducción", f:2, body:`<p><b>Directo:</b> si Γ∪{A} <span class="fx">⊢<sub>L</sub></span> B entonces Γ <span class="fx">⊢<sub>L</sub></span> (A→B).</p>
+      <p><b>Recíproco:</b> si Γ <span class="fx">⊢<sub>L</sub></span> (A→B) entonces Γ∪{A} <span class="fx">⊢<sub>L</sub></span> B.</p>`},
+    {t:"Corrección y completitud de L", f:2, body:`<p><b>Corrección (3.6.1):</b> si <span class="fx">⊢<sub>L</sub> A</span> entonces A es una tautología.</p>
+      <p><b>Completitud (3.6.8):</b> si A es tautología, entonces <span class="fx">⊢<sub>L</sub> A</span>.</p>`},
+    {t:"Consistencia", f:2, body:`<p>Γ es <b>inconsistente</b> sii cualquier fbf es deducible de Γ (equivalente: existe A con Γ⊢A y Γ⊢¬A). Es <b>consistente</b> si no lo es.</p>
+      <p>El sistema <b>L es consistente</b> (3.6.7).</p>`},
+    {t:"Decidibilidad de L", f:2, body:`<p>El sistema <b>L es decidible</b>: las <b>tablas de verdad</b> constituyen el algoritmo decisorio.</p>
+      <p><b>Indecidibilidad:</b> S es indecidible sii no existe algoritmo que responda «¿Es A un teorema de S?» para toda fbf A.</p>`},
+    {t:"Sistema K_L (predicados)", f:2, body:`<p>Añade a los axiomas de L (con cuantificadores):</p>
+      <div class="block"><span class="k">K4</span>  ((∀x)A → A)            <span class="c">si x no libre en A</span>
+<span class="k">K5</span>  ((∀x)A(x) → A(t))      <span class="c">si t no liga variables</span>
+<span class="k">K6</span>  ((∀x)(A→B) → (A→(∀x)B)) <span class="c">si x no libre en A</span></div>
+      <p><b>Reglas:</b> MP, y <b>Generalización (Gen)</b>: de A se infiere (∀x)A, para cualquier variable x.</p>`},
+    {t:"Corrección, completitud e indecidibilidad de K_L", f:3, body:`<p><b>Corrección (6.3.5):</b> si <span class="fx">⊢<sub>KL</sub> A</span> entonces <span class="fx">⊨ A</span>.</p>
+      <p><b>Completitud (6.3.7):</b> si <span class="fx">⊨ A</span> entonces <span class="fx">⊢<sub>KL</sub> A</span>.  ·  <b>6.3.9:</b> Γ⊨A sii Γ⊢<sub>KL</sub>A.</p>
+      <p><b>Indecidibilidad:</b> K<sub>L</sub> es indecidible, pero la lógica de predicados es <b>semidecidible</b>:</p>
+      <ul>
+        <li>Si A <b>sí</b> es teorema → el procedimiento termina (responde «sí»).</li>
+        <li>Si A <b>no</b> lo es → puede no terminar nunca.</li>
+      </ul>
+      <div class="warn"><span>⚠️</span><span>Pregunta clásica: <b>L decidible</b> (tablas) vs. <b>K<sub>L</sub> indecidible pero semidecidible</b>.</span></div>`}
+  ]
+},
+{
+  id:"pred", num:"04", title:"Lógica de predicados — semántica",
+  items:[
+    {t:"Término de L", f:3, body:`<p>Expresión con variables, constantes y símbolos de función:</p>
+      <ol>
+        <li>Si t ∈ V ∪ C, entonces t es un término (toda variable o constante).</li>
+        <li>Si t₁,…,tₙ son términos y fⁿ es símbolo de función n-ádico, entonces fⁿ(t₁,…,tₙ) es un término.</li>
+      </ol>
+      <div class="warn"><span>⚠️</span><span><b>¡Trampa clásica!</b> Un símbolo de <b>relación</b> Rⁿ aplicado a términos produce una <b>fórmula atómica</b>, NO un término. Ej.: Q(y) con Q relación → fórmula, no término.</span></div>`},
+    {t:"Fórmula atómica", f:3, body:`<p>Expresión con términos y símbolos de relación: si t₁,…,tₙ son términos y Rⁿ es símbolo de relación n-ádico, entonces <b>Rⁿ(t₁,…,tₙ)</b> es una fórmula atómica.</p>
+      <p>«Atómica» = indivisible: las partes más simples de las fbf. Se interpretan como enunciados que afirman que ciertos objetos verifican una propiedad.</p>`},
+    {t:"Fórmula bien formada (fbf)", f:3, body:`<ol>
+        <li>Toda fórmula atómica de L es una fbf.</li>
+        <li>Si A, B son fbf → (¬A), (A∧B), (A∨B), (A→B), (A↔B) lo son.</li>
+        <li>Si A es fbf y x ∈ V → <span class="fx">(∀x)A</span> y <span class="fx">(∃x)A</span> son fbf.</li>
+      </ol>`},
+    {t:"Variables libres/ligadas · abierta/cerrada", f:2, body:`<ul>
+        <li><b>Radio de acción</b> de (∀x) o (∃x): la fbf A a la que precede.</li>
+        <li><b>Ligada:</b> ocurrencia de x dentro del radio de acción de un cuantificador en x.</li>
+        <li><b>Libre:</b> ocurrencia que no es ligada.</li>
+      </ul>
+      <p><b>Cerrada:</b> fbf sin variables libres. En caso contrario, <b>abierta</b>.</p>`},
+    {t:"Interpretación I", f:3, body:`<p>Una <b>interpretación</b> I de L es un par <span class="fx">⟨D_I, J⟩</span>:</p>
+      <ol>
+        <li>Un dominio no vacío D_I.</li>
+        <li>Una aplicación J que asigna: a cada constante aᵢ un elemento de D_I; a cada fⁿᵢ una función D_Iⁿ→D_I; a cada Rⁿᵢ una relación R̄ⁿᵢ ⊆ D_Iⁿ.</li>
+      </ol>`},
+    {t:"Valoración v y x-equivalente", f:3, body:`<p><b>Valoración v</b>: asigna a cada variable un elemento del dominio: <span class="fx">v : V ⟶ D_I</span>.</p>
+      <p><b>x-equivalente</b> vˣ̄ₓ: coincide con v salvo (quizá) en x, donde toma x̄:</p>
+      <div class="block">vˣ̄ₓ(z) = x̄        si z ≡ x
+vˣ̄ₓ(z) = v(z)     en otro caso</div>`},
+    {t:"Función de evaluación Eval_{I,ϑ}", f:3, body:`<p><b>⭐ La definición más importante.</b> Aplicación inductiva de fbf's a {V,F}:</p>
+      <div class="block"><span class="k">1.</span> Atómica A≡Rⁿ(t₁,…,tₙ):
+   Eval(A)=V  sii  ⟨ϑ(t₁),…,ϑ(tₙ)⟩ ∈ R̄ⁿ = J(Rⁿ)
+<span class="k">2.</span> ¬B    → f¬(Eval(B))
+   B∧C   → f∧(Eval(B),Eval(C))
+   B∨C   → f∨(Eval(B),Eval(C))
+   B→C   → f→(Eval(B),Eval(C))
+   B↔C   → f↔(Eval(B),Eval(C))
+<span class="k">3.</span> (∀x)B → V sii para TODA vˣ̄ₓ x-equiv: Eval_{I,vˣ̄ₓ}(B)=V
+<span class="k">4.</span> (∃x)B → V sii EXISTE una vˣ̄ₓ x-equiv: Eval_{I,vˣ̄ₓ}(B)=V</div>
+      <div class="warn"><span>⚠️</span><span>Aparece en <b>todos</b> los exámenes. Apréndela completa, sobre todo los casos 3 y 4 (cuantificadores).</span></div>`},
+    {t:"Satisfacibilidad · Verdad en I", f:3, body:`<p><b>ϑ satisface A</b> (ϑ Sat A) sii Eval_{I,ϑ}(A)=V.</p>
+      <ul>
+        <li>A <b>verdadera en I</b> sii toda valoración ϑ en I satisface A.</li>
+        <li>A <b>falsa en I</b> sii ninguna valoración ϑ en I satisface A.</li>
+      </ul>`},
+    {t:"Validez lógica · Satisfacibilidad", f:3, body:`<ol>
+        <li>A <b>lógicamente válida</b> sii para toda interpretación I, A es verdadera en I.</li>
+        <li>A <b>insatisfacible</b> sii para toda I, A es falsa en I.</li>
+        <li>A <b>satisfacible</b> sii existe I y una valoración ϑ en I tal que ϑ satisface A.</li>
+      </ol>
+      <div class="note"><span>↔</span><span>Una fórmula puede ser <b>satisfacible y a la vez no válida</b>.</span></div>`},
+    {t:"Equivalencia lógica (pred.)", f:2, body:`<p>A y B son <b>lógicamente equivalentes</b> (A⟺B) sii para toda interpretación I y toda valoración ϑ en I: ϑ satisface A sii ϑ satisface B.</p>
+      <p><b>Prop.:</b> A⟺B sii <span class="fx">(A↔B)</span> es lógicamente válida.</p>`},
+    {t:"Modelo · Consecuencia lógica (pred.)", f:3, body:`<p><b>Modelo:</b> I es modelo de una fbf cerrada A sii A es verdadera en I.</p>
+      <p><b>Consecuencia lógica:</b> sea Γ un conjunto de fbf cerradas y A cerrada. A es consecuencia lógica de Γ sii para toda interpretación I, <b>si I es modelo de Γ entonces I es modelo de A</b>.</p>`},
+    {t:"Teorema de la deducción semántica", f:2, body:`<p>Para Γ = {A₁,…,Aₙ} y B cerradas:</p>
+      <ol>
+        <li>Γ ⊨ B sii ⊨ (A₁∧…∧Aₙ) → B.</li>
+        <li>Γ ⊨ B sii (A₁∧…∧Aₙ∧¬B) es <b>insatisfacible</b>.</li>
+        <li>Γ ⊨ B sii Γ ∪ {¬B} es <b>insatisfacible</b>.</li>
+      </ol>`},
+    {t:"Independencia", f:2, body:`<p>A es <b>independiente</b> de Γ sii <span class="fx">Γ ⊭ A</span> (A no es consecuencia lógica de Γ).</p>
+      <p>Γ es independiente sii para todo A∈Γ, A es independiente de Γ∖{A} (ninguna fórmula se deduce del resto).</p>
+      <div class="note"><span>🔬</span><span><b>Prueba de independencia:</b> construir una interpretación I donde todas las premisas sean verdaderas y la conclusión falsa, demostrándolo con Eval_{I,ϑ}.</span></div>`}
+  ]
+},
+{
+  id:"metodo", num:"05", title:"Argumento correcto — metodología",
+  items:[
+    {t:"Definición formal", f:3, body:`<p>Un argumento es <b>correcto</b> si existe relación de consecuencia lógica entre la conclusión y sus premisas; <b>incorrecto</b> en caso contrario.</p>`},
+    {t:"Si crees que es CORRECTO", f:3, body:`<ol>
+        <li>Formalizarlo en el lenguaje de la lógica (predicados o enunciados).</li>
+        <li>Usar un <b>cálculo deductivo</b> (deducción natural de Gentzen) para deducir la conclusión a partir de las premisas.</li>
+      </ol>`},
+    {t:"Si crees que es INCORRECTO", f:3, body:`<ol>
+        <li>Realizar una <b>prueba de independencia</b> (buscar un contraejemplo).</li>
+        <li>Definir una interpretación I que haga <b>verdaderas todas las premisas y falsa la conclusión</b>.</li>
+        <li>Demostrarlo formalmente con <b>Eval_{I,ϑ}</b>.</li>
+      </ol>`},
+    {t:"Deducción natural de Gentzen", f:1, body:`<ul>
+        <li>Tiene <b>dos clases</b> de reglas: de inferencia y de construcción de una deducción.</li>
+        <li>Los <b>supuestos provisionales/subsidiarios</b> se introducen en cualquier punto y deben <b>cancelarse antes</b> de concluir.</li>
+        <li>Un supuesto puede usarse mientras no esté cancelado; las líneas tras una cancelación no se reutilizan.</li>
+        <li><b>Introducción del generalizador</b> = método de <b>generalización universal</b>.</li>
+      </ul>`}
+  ]
+},
+{
+  id:"resol", num:"06", title:"Resolución y forma clausal",
+  items:[
+    {t:"Cláusula y forma clausal", f:2, body:`<p><b>Cláusula:</b> disyunción (posiblemente vacía) de <b>literales</b> (literal = variable o su negación). La cláusula vacía <span class="fx">□</span> representa la contradicción.</p>
+      <p><b>Forma clausal:</b> conjunto de cláusulas cuya conjunción es lógicamente equivalente a la fórmula original.</p>`},
+    {t:"Algoritmo de conversión a forma clausal", f:2, body:`<p>En <b>este orden</b>:</p>
+      <ol>
+        <li>Eliminar <b>↔</b>: A↔B ≡ (A→B)∧(B→A).</li>
+        <li>Eliminar <b>→</b>: A→B ≡ ¬A∨B.</li>
+        <li>Mover negaciones hacia dentro (De Morgan, doble negación).</li>
+        <li>Distribuir ∨ sobre ∧: A∨(B∧C) ≡ (A∨B)∧(A∨C).</li>
+        <li>Expresar como conjunto de cláusulas.</li>
+      </ol>`},
+    {t:"Principio de resolución (Robinson)", f:2, body:`<p>De C₁ = (A∨R) y C₂ = (¬A∨S) se infiere la <b>resolvente</b> (R∨S).</p>
+      <p>Para resolver un argumento por refutación:</p>
+      <ol>
+        <li>Pasar premisas y la <b>negación de la conclusión</b> a forma clausal.</li>
+        <li>Aplicar resolución repetidamente.</li>
+        <li>Si se obtiene la cláusula vacía <span class="fx">□</span> → conjunto insatisfacible → <b>argumento correcto</b>.</li>
+      </ol>
+      <div class="warn"><span>⚠️</span><span>El <b>resolvente es consecuencia lógica</b> de las cláusulas resueltas (no al revés). Las cláusulas a resolver deben tener literales <b>complementarios</b>.</span></div>`},
+    {t:"Cláusula de Horn", f:1, body:`<p>Cláusula con <b>como máximo un literal positivo</b>.</p>
+      <ul>
+        <li><b>Hecho:</b> un único literal positivo. Ej.: P(a).</li>
+        <li><b>Regla:</b> un positivo y ≥1 negativo. Ej.: Q(x)∧R(x)→P(x).</li>
+        <li><b>Meta:</b> ningún literal positivo. Ej.: ¬P(x)∨¬Q(x).</li>
+      </ul>`}
+  ]
+},
+{
+  id:"equiv", num:"07", title:"Diferencias clave y equivalencias",
+  items:[
+    {t:"Proposicional vs. predicados", f:3, body:`<ul>
+        <li><b>Proposicional:</b> proposiciones como unidades atómicas indivisibles.</li>
+        <li><b>Predicados:</b> análisis interno → términos, relaciones, cuantificadores.</li>
+        <li>Atribución α + valoración ϑ (prop.) ↔ Interpretación I + valoración v + Eval (pred.).</li>
+        <li>Deducción en L: solo <b>MP</b>. En K<sub>L</sub>: <b>MP + Gen</b> (+ reglas de cuantificadores en Gentzen).</li>
+        <li><b>L decidible</b> · <b>K<sub>L</sub> indecidible</b> (semidecidible). Ambos correctos y completos.</li>
+        <li>K<sub>L</sub> añade los axiomas K4, K5, K6 sobre cuantificadores.</li>
+      </ul>`},
+    {t:"Equivalencias lógicas notables", f:2, body:`<div class="block">(p→q)   ⟺  ¬p ∨ q        <span class="c">def. implicador</span>
+(p→q)   ⟺  ¬q → ¬p       <span class="c">contraposición</span>
+¬(p∨q)  ⟺  ¬p ∧ ¬q       <span class="c">De Morgan</span>
+¬(p∧q)  ⟺  ¬p ∨ ¬q       <span class="c">De Morgan</span>
+¬¬p     ⟺  p             <span class="c">doble negación</span>
+¬(∀x)A  ⟺  (∃x)¬A        <span class="c">neg. universal</span>
+¬(∃x)A  ⟺  (∀x)¬A        <span class="c">neg. existencial</span></div>`},
+    {t:"Lenguaje de segundo orden", f:1, body:`<p>Alude a la posibilidad de <b>cuantificar relatores</b> (símbolos de relación/función), no solo variables individuales.</p>`}
+  ]
+}
+];
+
+/* =================================================================
+   DATOS · CUESTIONARIOS
+   correct = índice (0-based) de la opción correcta
+   ================================================================= */
+const QUIZZES = {
+auto1:{
+  name:"Autocontrol 1", icon:"①", desc:"Prueba oficial · conceptos generales, proposiciones y deducción natural.",
+  qs:[
+  {q:`Indicar cuál de los siguientes es un enunciado declarativo:`,
+   o:["«Tráeme la ropa cuanto antes mejor».","«¡Ay! ¡Qué lío más grande!».","«La construcción del metro fue muy costosa».","«Califragilístico espialidoso no es así»."],c:2,
+   e:`Un enunciado declarativo afirma algo (V o F). Una orden y una exclamación no lo son; la cuarta es una sucesión sin sentido proposicional.`},
+  {q:`¿Cuál de las siguientes afirmaciones es FALSA?`,
+   o:["Un enunciado es una expresión lingüística que establece un pensamiento completo.","Un argumento es un sistema de enunciados; alguno puede expresar una orden o una conclusión.","Un argumento es correcto si su conclusión se sigue o es consecuencia de sus premisas.","Las definiciones analíticas tienen la ventaja de estar bien motivadas."],c:1,
+   e:`Es falsa: los enunciados de un argumento son declarativos. Una premisa no puede expresar una orden.`},
+  {q:`¿Cuál de los siguientes enunciados es analítico?`,
+   o:["«Si es una rosa, es una rosa».","«Las estrellas lucen en el cielo».","«La raíz cuadrada de 2 es 3,1416».","«Los leones cazan búfalos»."],c:0,
+   e:`Analítico = verdadero en toda circunstancia (tautológico). «Si es una rosa, es una rosa» tiene la forma p→p, siempre verdadera.`},
+  {q:`Sobre el argumento «Si Juan es inteligente aprueba; Juan es inteligente; luego, aprueba», es cierto que:`,
+   o:["Es analítico.","Es sintético.","Es incorrecto.","Es válido."],c:3,
+   e:`Es la forma del Modus Ponens: p→q, p ∴ q. La conclusión es consecuencia lógica de las premisas → argumento válido.`},
+  {q:`Indicar cuál de las siguientes afirmaciones es cierta:`,
+   o:["La lógica de predicados se ocupa de enunciados simples vistos como un todo indivisible.","Solamente existe una forma de establecer las relaciones de consecuencia lógica.","Términos, fórmulas atómicas, cuantificadores y conectores forman parte de la semántica.","La lógica puede dividirse en dos partes bien diferenciadas: la sintaxis y la semántica."],c:3,
+   e:`La división sintaxis/semántica es correcta. La primera describe la lógica de proposiciones (no de predicados); términos y cuantificadores son sintaxis, no semántica.`},
+  {q:`Indicar cuál de las siguientes afirmaciones es FALSA:`,
+   o:["El condicional A→B es verdadero salvo cuando A es verdadero y B falso.","Un argumento es correcto si y solo si cuando sus premisas son falsas su conclusión también lo es.","El «if-then» de los lenguajes de programación difiere del condicional lógico.","p→q puede simbolizar «no p a menos que q»."],c:1,
+   e:`Falsa: la corrección exige que NO sea posible premisas verdaderas con conclusión falsa; nada se exige cuando las premisas son falsas.`},
+  {q:`Sea A ≡ ((¬p → q) → (p → ¬q)). Se cumple que:`,
+   o:["A es una tautología.","A es una contradicción.","A es una contingencia.","Ninguna de las anteriores."],c:2,
+   e:`Con p=V,q=F: A=V. Con p=V,q=V: A=F. Toma ambos valores → contingencia.`},
+  {q:`Sean A ≡ (p∧q ↔ p) y B ≡ ((p→q)∧(p→r)), con α(p)=V, α(q)=F, α(r)=V. Se cumple:`,
+   o:["ϑ(A)=V y ϑ(B)=V.","ϑ(A)=V y ϑ(B)=F.","ϑ(A)=F y ϑ(B)=V.","ϑ(A)=F y ϑ(B)=F."],c:3,
+   e:`A: (V∧F ↔ V) = (F↔V) = F. B: (V→F)∧(V→V) = F∧V = F. Por tanto ϑ(A)=F y ϑ(B)=F.`},
+  {q:`¿Cuál de estas afirmaciones es la correcta?`,
+   o:["La barra de Sheffer expresa la negación de la disyunción.","La barra de Peirce expresa la negación de la disyunción.","La barra de Peirce expresa la incompatibilidad de sus componentes.","La barra de Peirce solo es verdadera cuando sus dos componentes son verdaderos."],c:1,
+   e:`Peirce ↓ = NOR = ¬(A∨B) = negación de la disyunción. Sheffer | = NAND = ¬(A∧B) = incompatibilidad.`},
+  {q:`Relativo a dos formas A y B, indicar la afirmación FALSA:`,
+   o:["Son demostrablemente equivalentes sii A ⇔ B.","Son demostrablemente equivalentes sii ⊢_L A↔B.","Son demostrablemente equivalentes sii ⊢_L A→B y ⊢_L B→A.","Todas las anteriores afirmaciones son incorrectas."],c:3,
+   e:`Las tres caracterizaciones son válidas, así que «todas son incorrectas» es la única afirmación falsa.`},
+  {q:`Un sistema formal es correcto si:`,
+   o:["Toda fórmula demostrable mediante el cálculo deductivo es válida según la semántica.","Toda fórmula semánticamente válida es demostrable mediante el cálculo deductivo.","Existe un procedimiento finito para decidir si una fórmula es o no válida.","Su método de cálculo es el de la lógica de predicados de primer orden."],c:0,
+   e:`Corrección (soundness): ⊢A ⇒ ⊨A. La segunda opción describe la completitud; la tercera, la decidibilidad.`},
+  {q:`En un sistema formal:`,
+   o:["La consistencia está asegurada.","Es consistente si se puede deducir cualquier fbf a partir de un conjunto Γ.","La consistencia se asegura mediante el método de las tablas de verdad.","Ninguna de las anteriores."],c:3,
+   e:`Ninguna es correcta: la consistencia no está garantizada de oficio, deducir «cualquier» fbf es ser INconsistente, y las tablas no aseguran consistencia.`},
+  {q:`Un sistema de deducción natural:`,
+   o:["Tiene solo reglas de inferencia.","Tiene dos clases de reglas: de inferencia y de construcción de una deducción.","Tiene una única clase de reglas.","Solo tiene reglas de introducción y eliminación de conectivas."],c:1,
+   e:`La deducción natural distingue reglas de inferencia y reglas de construcción de la deducción (supuestos, cancelaciones…).`},
+  {q:`Sobre el sistema de deducción natural de Gentzen, es correcta:`,
+   o:["Una fbf se considera probada si aparece en la última línea de una deducción.","Una prueba condicional consiste en probar que el consecuente es verdadero.","Los supuestos provisionales pueden introducirse en cualquier punto y deben cancelarse antes de concluir.","Ninguna de las anteriores."],c:2,
+   e:`Los supuestos subsidiarios se introducen libremente, pero deben quedar cancelados antes de cerrar la deducción.`},
+  {q:`Sobre el sistema de Gentzen, es correcta:`,
+   o:["El «teorema de la deducción» propicia la eliminación del condicional.","Una prueba por casos permite partir de cualquier caso y dar pasos hasta la conclusión.","Los supuestos provisionales pueden utilizarse siempre que no estén cancelados.","Las líneas marcadas tras una cancelación pueden utilizarse en ciertos casos."],c:2,
+   e:`Un supuesto provisional es utilizable mientras siga vigente, es decir, mientras no haya sido cancelado.`}
+  ]
+},
+auto2:{
+  name:"Autocontrol 2", icon:"②", desc:"Prueba oficial · predicados, semántica, sustitución y resolución.",
+  qs:[
+  {q:`Dada la expresión R(f(b), Q(x)), es cierto que:`,
+   o:["Es una fórmula atómica abierta.","Sería atómica cerrada si en vez de x estuviera una a.","Sería atómica cerrada si en lugar de Q estuviera una g.","No es una fórmula atómica."],c:3,
+   e:`Q es símbolo de relación, así que Q(x) es una fórmula, no un término. R no puede tomar una fórmula como argumento → R(f(b),Q(x)) no es atómica (no es fbf).`},
+  {q:`Se dice que una variable está libre cuando:`,
+   o:["Está cuantificada por un particularizador precedido de un generalizador.","No aparece en el ámbito de acción de un cuantificador, i.e., no está ligada.","Es un argumento de un functor.","Aparece sola en una fórmula."],c:1,
+   e:`Libre = su ocurrencia no cae dentro del radio de acción de ningún cuantificador sobre esa variable.`},
+  {q:`Un modelo de una fórmula A es:`,
+   o:["Una asignación de variables compatibles con la teoría.","Una interpretación bajo la cual A es cerrada.","Una interpretación bajo la cual A es verdadera.","Un alfabeto compatible con los operadores de A."],c:2,
+   e:`Una interpretación I es modelo de A (cerrada) sii A es verdadera en I.`},
+  {q:`Dada una fórmula cerrada A, indicar la afirmación FALSA:`,
+   o:["A es insatisfacible si A es una contradicción.","A es válida sii ¬A es insatisfacible.","A es consecuencia lógica de {A₁,…,Aₙ} sii ¬A es insatisfacible.","A es consecuencia lógica de {A₁,…,Aₙ} sii (¬(A₁∧…∧Aₙ)∨A) es válida."],c:2,
+   e:`Falsa: A es consecuencia lógica de Γ sii {A₁,…,Aₙ,¬A} (Γ junto con ¬A) es insatisfacible, no solo ¬A por sí sola.`},
+  {q:`Con D_I=ℕ, J(a)=2, J(f)=suc, J(g)=+, J(h)=×, J(R)=identidad, J(P)=Par. ¿De cuál es modelo I?`,
+   o:["(∃x) R(a, f(x)).","(∀x)(∀y) R(g(f(x),y), f(g(x,y))).","(∀x)(∀y) R(g(x,y), h(y,x)).","(∀x)(P(x) → P(f(x)))."],c:1,
+   e:`R es la identidad. La 2ª dice (x+1)+y = (x+y)+1, cierto para todo natural. La 3ª (x+y = y·x) y la 4ª (par ⇒ par del sucesor) fallan; la 1ª pediría 2 = x+1 para algún x... sí existe (x=1), pero la opción marcada como modelo es la universal que se cumple para TODOS.`},
+  {q:`Indicar la afirmación cierta sobre el teorema de la deducción:`,
+   o:["La versión sintáctica relaciona validez y deducibilidad respecto a fórmulas cerradas.","La versión semántica establece la completitud de la lógica de predicados.","La versión semántica establece la equivalencia entre la validez de la implicación (conjunción de premisas → conclusión) y la relación de consecuencia lógica entre conclusión y premisas.","La versión sintáctica establece la corrección de las fórmulas conclusión de las premisas."],c:2,
+   e:`La versión semántica liga «⊨ (A₁∧…∧Aₙ)→B» con «Γ ⊨ B»: validez de la implicación ↔ consecuencia lógica.`},
+  {q:`Un sistema formal es correcto si:`,
+   o:["Toda fórmula demostrable mediante el cálculo deductivo es válida según la semántica.","Toda fórmula semánticamente válida es demostrable mediante el cálculo deductivo.","Existe un procedimiento finito para decidir si una fórmula es o no válida.","Su método de cálculo es el de la lógica de predicados de primer orden."],c:0,
+   e:`Corrección: ⊢A ⇒ ⊨A. La 2ª es completitud; la 3ª, decidibilidad.`},
+  {q:`Conjunto de propiedades que mejor caracteriza la lógica de predicados:`,
+   o:["Correcta, completa, consistente y decidible.","Correcta, satisfacible, completa y decidible.","Correcta, completa, consistente e indecidible.","Deducible, correcta, consistente e incompleta."],c:2,
+   e:`K_L es correcta, completa, consistente pero INDECIDIBLE (solo semidecidible).`},
+  {q:`Es un conjunto adecuado de conectivas:`,
+   o:["{∧, ∨}","{ | }","{→, ↔}","{∧, →}"],c:1,
+   e:`Solo { | } (NAND) es adecuado por sí mismo: permite expresar la negación (¬A = A|A) y de ahí todo lo demás. Los otros no pueden expresar la negación.`},
+  {q:`Un lenguaje de segundo orden alude a:`,
+   o:["La posibilidad de cuantificar relatores.","El uso de dos o más variables diferentes.","La posibilidad de usar predicados binarios.","La posibilidad de usar términos como argumentos en una relación."],c:0,
+   e:`En 2.º orden se cuantifican también los símbolos de relación/función (relatores), no solo las variables individuales.`},
+  {q:`La regla de inferencia de introducción del generalizador se corresponde con:`,
+   o:["La técnica de buscar un contraejemplo.","La prueba constructiva de los matemáticos.","El método de instanciación universal.","El método de generalización universal."],c:3,
+   e:`Introducir (∀x) = generalización universal. La instanciación universal sería la ELIMINACIÓN del generalizador.`},
+  {q:`Sea A ≡ (∀w)(P(x) ∧ H(w) → (∃x)R(x,z)). Entonces A{z/x}{x/f(c)} es:`,
+   o:["(∀w)(P(f(c)) ∧ H(w) → (∃x)R(f(c), f(c)))","(∀w)(P(f(c)) ∧ H(w) → (∃y)R(y, f(c)))","(∀w)(P(f(c)) ∧ H(w) → R(f(c), f(c)))","(∀w)(P(f(c)) ∧ H(w) → (∃x)R(f(c), x))"],c:1,
+   e:`{z/x}: al meter x donde z, x quedaría capturada por (∃x); se renombra la ligada a y → (∃y)R(y,x). Luego {x/f(c)} sustituye las x libres → (∃y)R(y,f(c)).`},
+  {q:`Una cláusula es:`,
+   o:["Una disyunción de conjunciones de literales.","Una conjunción de disyunciones de literales.","Una disyunción de literales.","Una disyunción de literales cuantificados universalmente."],c:3,
+   e:`En resolución de primer orden las variables de una cláusula están implícitamente cuantificadas de forma universal: una cláusula es una disyunción de literales cuantificados universalmente. (En el caso proposicional basta «disyunción de literales».)`},
+  {q:`Relativo al principio de resolución, ¿qué afirmación es FALSA?`,
+   o:["Se utiliza en un método de prueba por refutación.","Las cláusulas resueltas deben poseer literales complementarios para dar un paso.","Las cláusulas resueltas son consecuencia lógica del resolvente.","El resolvente es consecuencia lógica de las cláusulas resueltas."],c:2,
+   e:`Falsa: es al revés. El RESOLVENTE es consecuencia lógica de las cláusulas resueltas, no las cláusulas del resolvente.`}
+  ]
+},
+extra:{
+  name:"Banco extra", icon:"✦", desc:"Preguntas estilo examen extrapoladas de toda la teoría. Repaso intensivo.",
+  qs:[
+  {q:`¿En qué se diferencia la valoración ϑ de la atribución veritativa α?`,
+   o:["No hay diferencia, son sinónimos.","α asigna V/F solo a las variables; ϑ extiende esa asignación a toda fórmula.","ϑ asigna V/F solo a variables; α a toda fórmula.","α actúa sobre interpretaciones y ϑ sobre dominios."],c:1,
+   e:`α : {p₁,…,pₙ}→{V,F} (solo variables). ϑ es inductiva y evalúa cualquier forma enunciativa a partir de α.`},
+  {q:`¿Cuál es el grado de la forma enunciativa ¬(p → (q ∧ r))?`,
+   o:["2","3","4","5"],c:1,
+   e:`grado(q∧r)=1. grado(p→(q∧r))=1+0+1=2. grado(¬…)=1+2=3.`},
+  {q:`Una forma enunciativa que toma V para algunas valoraciones y F para otras es:`,
+   o:["Una tautología.","Una contradicción.","Una contingencia.","Un teorema."],c:2,
+   e:`Definición de contingencia.`},
+  {q:`Si A y A→B son ambas tautologías, entonces B es:`,
+   o:["Una contingencia.","Una contradicción.","Una tautología.","Indeterminada."],c:2,
+   e:`Proposición 2.3.9: la tautologicidad se transmite por Modus Ponens.`},
+  {q:`Un término aplicado correctamente es:`,
+   o:["R(x), con R símbolo de relación.","f(a, x), con f símbolo de función.","P(f(a)), con P símbolo de relación.","(∀x)Q(x)."],c:1,
+   e:`Solo símbolos de FUNCIÓN sobre términos dan términos. R y P (relación) producen fórmulas atómicas, no términos.`},
+  {q:`Una fbf sin variables libres se denomina:`,
+   o:["Abierta.","Cerrada.","Atómica.","Ligada."],c:1,
+   e:`Cerrada = sin variables libres. Si tiene alguna libre, es abierta.`},
+  {q:`Corrección (soundness) de un sistema formal significa:`,
+   o:["Si ⊨A entonces ⊢A.","Si ⊢A entonces ⊨A.","Existe algoritmo para decidir teoremas.","No se deducen contradicciones."],c:1,
+   e:`Corrección: lo demostrable es válido (⊢A ⇒ ⊨A). El recíproco es la completitud.`},
+  {q:`Completitud de un sistema formal significa:`,
+   o:["Si ⊢A entonces ⊨A.","Si ⊨A entonces ⊢A.","El sistema es decidible.","El sistema es consistente."],c:1,
+   e:`Completitud: lo válido es demostrable (⊨A ⇒ ⊢A).`},
+  {q:`Un conjunto Γ de fbf es inconsistente si y solo si:`,
+   o:["No existe ninguna fbf deducible de Γ.","Cualquier fbf de L es deducible a partir de Γ.","Toda fbf de Γ es una tautología.","Γ es el conjunto vacío."],c:1,
+   e:`Inconsistente ⇔ se deduce cualquier cosa ⇔ existe A con Γ⊢A y Γ⊢¬A.`},
+  {q:`¿Qué propiedad distingue a L de K_L?`,
+   o:["L es consistente y K_L no.","L es decidible; K_L es indecidible (semidecidible).","K_L es correcto y L no.","L es completo y K_L no."],c:1,
+   e:`Ambos son consistentes, correctos y completos. La diferencia es la decidibilidad: L sí, K_L no (solo semidecidible).`},
+  {q:`La regla de inferencia que tiene K_L y NO tiene L es:`,
+   o:["Modus Ponens.","Generalización (Gen).","Modus Tollens.","Silogismo hipotético."],c:1,
+   e:`L solo tiene MP. K_L añade Gen: de A se infiere (∀x)A.`},
+  {q:`¬(∀x)A(x) es lógicamente equivalente a:`,
+   o:["(∀x)¬A(x)","(∃x)¬A(x)","¬(∃x)A(x)","(∃x)A(x)"],c:1,
+   e:`Negación del universal: ¬(∀x)A ⟺ (∃x)¬A.`},
+  {q:`(p → q) es lógicamente equivalente a:`,
+   o:["p ∧ ¬q","¬p ∧ q","¬p ∨ q","q → p"],c:2,
+   e:`Definición del implicador: p→q ⟺ ¬p∨q.`},
+  {q:`Para demostrar que un argumento es INCORRECTO se debe:`,
+   o:["Deducir la conclusión con Gentzen.","Construir una interpretación I que haga verdaderas las premisas y falsa la conclusión.","Probar que la conjunción de premisas es una tautología.","Aplicar Modus Ponens repetidamente."],c:1,
+   e:`Prueba de independencia: un contraejemplo (modelo de las premisas que falsea la conclusión), demostrado con Eval.`},
+  {q:`Γ ⊨ B si y solo si:`,
+   o:["Γ ∪ {¬B} es insatisfacible.","Γ ∪ {B} es insatisfacible.","Γ ∪ {¬B} es satisfacible.","B es una tautología."],c:0,
+   e:`Teorema de la deducción semántica: Γ⊨B ⇔ Γ∪{¬B} insatisfacible.`},
+  {q:`El primer paso del algoritmo de conversión a forma clausal es:`,
+   o:["Distribuir ∨ sobre ∧.","Eliminar los condicionales (→).","Eliminar los bicondicionales (↔).","Mover las negaciones hacia dentro."],c:2,
+   e:`Orden: (1) eliminar ↔, (2) eliminar →, (3) negaciones dentro, (4) distribuir, (5) cláusulas.`},
+  {q:`Por el principio de resolución, de (A ∨ R) y (¬A ∨ S) se infiere:`,
+   o:["(A ∨ S)","(R ∨ S)","(¬R ∨ ¬S)","(A ∧ ¬A)"],c:1,
+   e:`Se eliminan los literales complementarios A y ¬A y se unen los restos: (R∨S).`},
+  {q:`Si por resolución se obtiene la cláusula vacía □, ello indica que:`,
+   o:["El conjunto es satisfacible.","El conjunto es insatisfacible y el argumento es correcto.","La conclusión es independiente.","No se puede concluir nada."],c:1,
+   e:`□ representa la contradicción: el conjunto (premisas + negación de la conclusión) es insatisfacible → argumento correcto.`},
+  {q:`Una cláusula de Horn es aquella que tiene:`,
+   o:["Como máximo un literal positivo.","Exactamente dos literales positivos.","Solo literales negativos.","Ningún literal."],c:0,
+   e:`Horn = a lo sumo un literal positivo. Hecho (1 pos.), regla (1 pos. + negativos), meta (0 pos.).`},
+  {q:`En el caso A↔B, ϑ(A↔B)=V si y solo si:`,
+   o:["ϑ(A)=V y ϑ(B)=V.","ϑ(A)=ϑ(B).","ϑ(A)≠ϑ(B).","ϑ(A)=V o ϑ(B)=V."],c:1,
+   e:`El bicondicional es verdadero exactamente cuando ambos lados coinciden en valor.`},
+  {q:`Según Eval_{I,ϑ}, (∀x)B es verdadera en I bajo ϑ si y solo si:`,
+   o:["Existe alguna valoración x-equivalente que satisface B.","Para toda valoración x-equivalente vˣ̄ₓ, Eval(B)=V.","B es una fórmula atómica.","ϑ(x) pertenece al dominio."],c:1,
+   e:`El universal exige que B se satisfaga para TODA valoración x-equivalente; el existencial pediría que exista alguna.`},
+  {q:`A es lógicamente válida si y solo si:`,
+   o:["Existe una interpretación en la que A es verdadera.","Para toda interpretación I, A es verdadera en I.","Para toda interpretación I, A es falsa en I.","A es satisfacible pero no insatisfacible."],c:1,
+   e:`Validez lógica = verdadera en todas las interpretaciones. «Satisfacible» solo pide una.`},
+  {q:`Una fórmula puede ser:`,
+   o:["Válida y a la vez insatisfacible.","Satisfacible y a la vez no válida.","Verdadera y falsa en la misma interpretación.","Cerrada y abierta a la vez."],c:1,
+   e:`Una fórmula satisfacible (verdadera en alguna I) puede no ser válida (falsa en otra I).`},
+  {q:`La barra de Sheffer | corresponde a la función:`,
+   o:["NOR, ¬(A∨B).","NAND, ¬(A∧B).","XOR.","La implicación."],c:1,
+   e:`Sheffer | = NAND = ¬(A∧B). La de Peirce ↓ = NOR = ¬(A∨B).`},
+  {q:`Una interpretación I = ⟨D_I, J⟩ requiere que el dominio D_I sea:`,
+   o:["Finito.","No vacío.","Numerable.","Igual a ℕ."],c:1,
+   e:`Solo se exige que el dominio sea no vacío; puede ser finito o infinito.`},
+  {q:`¬(∃x)A(x) es lógicamente equivalente a:`,
+   o:["(∃x)¬A(x)","(∀x)¬A(x)","(∀x)A(x)","¬(∀x)A(x)"],c:1,
+   e:`Negación del existencial: ¬(∃x)A ⟺ (∀x)¬A.`}
+  ]
+}
+};
+
+/* =================================================================
+   RENDER · GUÍA
+   ================================================================= */
+const stars = f => `<span class="badge stars s${f}">${'★'.repeat(f)}</span>`;
+const guideMain = document.getElementById('guide-main');
+const tocList = document.getElementById('toc-list');
+
+GUIDE.forEach(sec=>{
+  const li=document.createElement('li');
+  li.innerHTML=`<a href="#${sec.id}" data-target="${sec.id}">${sec.title}</a>`;
+  tocList.appendChild(li);
+
+  const s=document.createElement('section');
+  s.className='sec';s.id=sec.id;
+  s.innerHTML=`<div class="sec-head"><span class="num">${sec.num}</span><h3>${sec.title}</h3></div>`;
+  sec.items.forEach(it=>{
+    const card=document.createElement('article');
+    card.className='card';
+    card.dataset.text=(it.t+' '+it.body).toLowerCase().replace(/<[^>]+>/g,' ');
+    card.innerHTML=`<div class="card-top"><h4>${it.t}</h4>${stars(it.f)}</div>${it.body}`;
+    s.appendChild(card);
+  });
+  guideMain.appendChild(s);
+});
+
+/* TOC scroll-spy */
+const tocLinks=[...tocList.querySelectorAll('a')];
+const secEls=GUIDE.map(s=>document.getElementById(s.id));
+const spy=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      tocLinks.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+secEls.forEach(el=>spy.observe(el));
+
+/* búsqueda */
+const search=document.getElementById('search');
+search.addEventListener('input',()=>{
+  const q=search.value.trim().toLowerCase();
+  document.querySelectorAll('.sec').forEach(sec=>{
+    let vis=0;
+    sec.querySelectorAll('.card').forEach(c=>{
+      const m=!q||c.dataset.text.includes(q);
+      c.style.display=m?'':'none';if(m)vis++;
+    });
+    sec.style.display=vis?'':'none';
+  });
+});
+
+/* =================================================================
+   RENDER · QUIZ
+   ================================================================= */
+const pickGrid=document.getElementById('pick-grid');
+const runner=document.getElementById('quiz-runner');
+const pick=document.getElementById('quiz-pick');
+const quizHero=document.getElementById('quiz-hero');
+
+// build picker (incl. examen mixto)
+const buildPicker=()=>{
+  pickGrid.innerHTML='';
+  const entries=[
+    ...Object.entries(QUIZZES).map(([k,v])=>({k,...v})),
+    {k:'mix',icon:'⚄',name:'Examen mixto',desc:'25 preguntas aleatorias de todos los bancos, en orden barajado.',count:25}
+  ];
+  entries.forEach(en=>{
+    const n=en.count||en.qs.length;
+    const b=document.createElement('button');
+    b.className='pick';
+    b.innerHTML=`<div class="pico">${en.icon}</div><h4>${en.name}</h4><p>${en.desc}</p><span class="count">${n} preguntas</span>`;
+    b.onclick=()=>startQuiz(en.k);
+    pickGrid.appendChild(b);
+  });
+};
+buildPicker();
+
+const LETTERS=['A','B','C','D','E'];
+let state=null;
+
+function buildMix(){
+  let all=[];
+  Object.values(QUIZZES).forEach(z=>z.qs.forEach(q=>all.push(q)));
+  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}
+  return all.slice(0,25);
+}
+
+function startQuiz(key){
+  const qs = key==='mix' ? buildMix() : QUIZZES[key].qs.map(x=>x);
+  state={key,name:key==='mix'?'Examen mixto':QUIZZES[key].name,qs,i:0,score:0,answered:[],picks:[]};
+  pick.style.display='none';quizHero.style.display='none';runner.style.display='block';
+  renderQ();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderQ(){
+  const {qs,i,name}=state;const q=qs[i];
+  const pct=Math.round((i)/qs.length*100);
+  runner.innerHTML=`
+    <div class="runner-head">
+      <span class="rtitle">${name}</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="qmeta">Pregunta ${i+1} / ${qs.length} · Aciertos ${state.score}</span>
+        <button class="btn-ghost" id="quit">↩ Salir</button>
+      </div>
+    </div>
+    <div class="progress"><i style="width:${pct}%"></i></div>
+    <div class="qcard">
+      <div class="qnum">Cuestión ${i+1}</div>
+      <p class="qtext">${q.q}</p>
+      <div class="opts" id="opts">
+        ${q.o.map((opt,idx)=>`<button class="opt" data-idx="${idx}"><span class="key">${LETTERS[idx]}</span><span>${opt}</span></button>`).join('')}
+      </div>
+      <div class="explain" id="explain"></div>
+      <div class="runner-foot">
+        <span class="scoretick" id="tick"></span>
+        <button class="btn-primary" id="next" disabled>${i+1<qs.length?'Siguiente →':'Ver resultados'}</button>
+      </div>
+    </div>`;
+  document.getElementById('quit').onclick=exitToPicker;
+  const opts=[...runner.querySelectorAll('.opt')];
+  opts.forEach(o=>o.onclick=()=>choose(parseInt(o.dataset.idx),opts));
+  document.getElementById('next').onclick=nextQ;
+}
+
+function choose(idx,opts){
+  const q=state.qs[state.i];
+  if(state.answered[state.i]!==undefined)return;
+  state.answered[state.i]=idx;state.picks[state.i]=idx;
+  const correct=q.c;const ok=idx===correct;
+  if(ok)state.score++;
+  opts.forEach((o,k)=>{
+    o.classList.add('locked');
+    if(k===correct){o.classList.add('correct');o.insertAdjacentHTML('beforeend','<span class="mark">✓</span>');}
+    if(k===idx&&!ok){o.classList.add('wrong');o.insertAdjacentHTML('beforeend','<span class="mark">✕</span>');}
+  });
+  const ex=document.getElementById('explain');
+  ex.className='explain show '+(ok?'ok':'no');
+  ex.innerHTML=`<span class="lab">${ok?'Correcto':'Respuesta correcta: '+LETTERS[correct]}</span>${q.e}`;
+  document.getElementById('next').disabled=false;
+  document.getElementById('tick').textContent=ok?'¡Bien!':'Revisa la explicación.';
+}
+
+function nextQ(){
+  if(state.i+1<state.qs.length){state.i++;renderQ();window.scrollTo({top:0,behavior:'smooth'});}
+  else renderResults();
+}
+
+function renderResults(){
+  const {qs,score,name}=state;
+  const total=qs.length;const pct=Math.round(score/total*100);
+  const wrong=qs.map((q,i)=>({q,i})).filter(({i})=>state.picks[i]!==qs[i].c);
+  let msg=pct>=85?'Dominio sólido. Listo para el examen.':pct>=60?'Buen nivel. Repasa los fallos y vuelve a intentarlo.':'A repasar la teoría: usa la guía y reintenta.';
+  const circ=2*Math.PI*60;const dash=circ*score/total;
+  runner.innerHTML=`
+    <div class="result">
+      <svg class="ring" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="60" fill="none" stroke="var(--paper-2)" stroke-width="12"/>
+        <circle cx="70" cy="70" r="60" fill="none" stroke="var(--teal)" stroke-width="12" stroke-linecap="round"
+          stroke-dasharray="${dash} ${circ}" transform="rotate(-90 70 70)"/>
+        <text x="70" y="78" text-anchor="middle" font-family="var(--serif)" font-size="34" font-weight="700" fill="var(--ink)">${pct}%</text>
+      </svg>
+      <div class="big">${score}<small> / ${total}</small></div>
+      <h3>${name} · completado</h3>
+      <p>${msg}</p>
+      <div class="result-actions">
+        <button class="btn-primary" id="retry">Reintentar</button>
+        <button class="btn-ghost" id="back">Elegir otro cuestionario</button>
+      </div>
+      ${wrong.length?`<div class="review"><h4>Para repasar (${wrong.length})</h4>${
+        wrong.map(({q,i})=>`<div class="rev-item">
+          <div class="q">${i+1}. ${q.q}</div>
+          <div class="a">Tu respuesta: ${state.picks[i]!==undefined?LETTERS[state.picks[i]]+') '+q.o[state.picks[i]]:'—'}</div>
+          <div class="a good">Correcta: ${LETTERS[q.c]}) ${q.o[q.c]}</div>
+        </div>`).join('')
+      }</div>`:`<div class="review"><h4>Sin fallos 🎯 — perfecto.</h4></div>`}
+    </div>`;
+  document.getElementById('retry').onclick=()=>startQuiz(state.key);
+  document.getElementById('back').onclick=exitToPicker;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function exitToPicker(){
+  runner.style.display='none';pick.style.display='block';quizHero.style.display='block';
+  buildPicker();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* =================================================================
+   TABS
+   ================================================================= */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const v=t.dataset.view;
+    document.getElementById('view-guia').classList.toggle('active',v==='guia');
+    document.getElementById('view-quiz').classList.toggle('active',v==='quiz');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+</script>
+</body>
+</html>

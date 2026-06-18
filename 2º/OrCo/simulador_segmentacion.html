@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma de Segmentación Libre · ORCO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Dark Mode (Default) */
+    --bg: #0a0f1d;
+    --bg-grid: #0f172a;
+    --panel: #131b2e;
+    --panel-hover: #1e293b;
+    --border: #243149;
+    --text: #e8edf7;
+    --text-dim: #9fb0cc;
+    --text-faint: #475569;
+    --accent: #fbbf24;
+    
+    --if: #38bdf8;
+    --id: #818cf8;
+    --ex: #fbbf24;
+    --mem: #f472b6;
+    --wb: #34d399;
+    --stall: #1e293b;
+    
+    --cell-text-IF: #06121f;
+    --cell-text-ID: #0b0f24;
+    --cell-text-EXE: #1c1405;
+    --cell-text-MEM: #2a0a1b;
+    --cell-text-WB: #04231a;
+    --cell-text-STALL: #9fb0cc;
+
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --disp: 'Sora', sans-serif;
+    --body: 'Hanken Grotesk', system-ui, sans-serif;
+
+    /* Cell Dimensions */
+    --cell-w: 44px;
+    --cell-h: 38px;
+    --cell-fs: 0.76rem;
+    --lbl-pad: 6px 12px;
+  }
+
+  [data-theme="light"] {
+    /* Light Mode */
+    --bg: #f8fafc;
+    --bg-grid: #ffffff;
+    --panel: #ffffff;
+    --panel-hover: #f1f5f9;
+    --border: #cbd5e1;
+    --text: #0f172a;
+    --text-dim: #475569;
+    --text-faint: #94a3b8;
+    --accent: #d97706;
+    
+    --if: #0284c7;
+    --id: #4f46e5;
+    --ex: #d97706;
+    --mem: #db2777;
+    --wb: #059669;
+    --stall: #e2e8f0;
+    
+    --cell-text-IF: #ffffff;
+    --cell-text-ID: #ffffff;
+    --cell-text-EXE: #ffffff;
+    --cell-text-MEM: #ffffff;
+    --cell-text-WB: #ffffff;
+    --cell-text-STALL: #475569;
+
+    /* Cell Dimensions */
+    --cell-w: 44px;
+    --cell-h: 38px;
+    --cell-fs: 0.76rem;
+    --lbl-pad: 6px 12px;
+  }
+
+  [data-size="compact"] {
+    --cell-w: 32px;
+    --cell-h: 28px;
+    --cell-fs: 0.64rem;
+    --lbl-pad: 2px 8px;
+  }
+  [data-size="spacious"] {
+    --cell-w: 56px;
+    --cell-h: 46px;
+    --cell-fs: 0.88rem;
+    --lbl-pad: 10px 16px;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    background-image: 
+      radial-gradient(900px 480px at 90% -8%, rgba(251,191,36, 0.04), transparent 60%),
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: auto, 38px 38px, 38px 38px;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  .wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  header {
+    padding: 36px 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: .74rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  h1 {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    line-height: 1.1;
+    margin: 0;
+    letter-spacing: -.02em;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    margin-top: 24px;
+    align-items: start;
+  }
+
+  @media(max-width: 1024px) {
+    .app { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .panel h2 {
+    font-family: var(--disp);
+    font-size: 1.1rem;
+    margin: 0 0 12px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background: var(--bg-grid);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    resize: vertical;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 16px;
+  }
+
+  .presets button, .btn {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-grid);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .presets button:hover, .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--panel-hover);
+  }
+
+  .btn.active-tool {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #000;
+  }
+  .btn.active-tool:hover {
+    color: #000;
+    background: var(--accent);
+  }
+
+  .control-group {
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 0.88rem;
+  }
+
+  .control-row label {
+    color: var(--text-dim);
+  }
+
+  .col-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .col-selector input {
+    width: 50px;
+    text-align: center;
+    font-family: var(--mono);
+    background: var(--bg-grid);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 4px;
+  }
+
+  /* Brushes and Tools */
+  .brush-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .brush-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-grid);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .brush-btn:hover {
+    border-color: var(--accent);
+  }
+
+  .brush-btn .color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .brush-btn.selected {
+    box-shadow: 0 0 0 2px var(--accent);
+    border-color: var(--accent);
+  }
+
+  .brush-btn[data-b="IF"] .color-dot { background-color: var(--if); }
+  .brush-btn[data-b="ID"] .color-dot { background-color: var(--id); }
+  .brush-btn[data-b="EXE"] .color-dot { background-color: var(--ex); }
+  .brush-btn[data-b="MEM"] .color-dot { background-color: var(--mem); }
+  .brush-btn[data-b="WB"] .color-dot { background-color: var(--wb); }
+  .brush-btn[data-b="STALL"] .color-dot { 
+    background-color: var(--stall); 
+    border: 1px dashed var(--border);
+  }
+  .brush-btn[data-b="ERASE"] .color-dot {
+    background-color: transparent;
+    border: 1px dashed var(--border);
+  }
+  .brush-btn[data-b="ARROW"] .color-dot {
+    background: linear-gradient(135deg, var(--ex), var(--mem));
+  }
+
+  .shortcut-tag {
+    font-size: 0.65rem;
+    color: var(--text-faint);
+    background: rgba(255,255,255,0.05);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+
+  /* Grid Canvas */
+  .canvas-wrapper {
+    background: var(--bg-grid);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
+    will-change: scroll-position;
+  }
+
+  .canvas-container {
+    position: relative;
+    display: inline-block;
+    min-width: 100%;
+  }
+
+  table.pgrid {
+    border-collapse: separate;
+    border-spacing: 4px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    width: max-content;
+    min-width: 100%;
+    will-change: transform;
+    transform: translate3d(0,0,0);
+  }
+
+  table.pgrid th {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-weight: 600;
+    padding: 4px;
+    text-align: center;
+  }
+
+  td.plbl, th.plbl-header {
+    position: sticky;
+    left: 0;
+    background: var(--panel);
+    z-index: 10;
+    font-family: var(--mono);
+    font-size: var(--cell-fs);
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    padding: var(--lbl-pad);
+    text-align: left;
+    min-width: 140px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .pcell {
+    width: var(--cell-w);
+    min-width: var(--cell-w);
+    height: var(--cell-h);
+    border-radius: 8px;
+    background: rgba(36, 49, 73, 0.15);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    font-family: var(--mono);
+    font-size: var(--cell-fs);
+    font-weight: 700;
+    color: transparent;
+    transition: background-color 0.1s, border-color 0.1s;
+  }
+
+  select.btn {
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%239fb0cc'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1l4 4 4-4'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    padding-right: 28px !important;
+  }
+  [data-theme="light"] select.btn {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%23475569'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1l4 4 4-4'/></svg>");
+  }
+
+  .pcell:hover {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .pcell.IF { background-color: var(--if); color: var(--cell-text-IF); border-color: transparent; }
+  .pcell.ID { background-color: var(--id); color: var(--cell-text-ID); border-color: transparent; }
+  .pcell.EXE { background-color: var(--ex); color: var(--cell-text-EXE); border-color: transparent; }
+  .pcell.MEM { background-color: var(--mem); color: var(--cell-text-MEM); border-color: transparent; }
+  .pcell.WB { background-color: var(--wb); color: var(--cell-text-WB); border-color: transparent; }
+  
+  .pcell.STALL { 
+    background-color: var(--stall); 
+    border: 1.5px dashed var(--border); 
+    color: var(--cell-text-STALL);
+  }
+
+  .pcell.pending-origin {
+    outline: 3px solid var(--accent);
+    outline-offset: -3px;
+    animation: pulse-border 1.5s infinite;
+  }
+
+  @keyframes pulse-border {
+    0% { outline-color: rgba(251, 191, 36, 0.4); }
+    50% { outline-color: rgba(251, 191, 36, 1); }
+    100% { outline-color: rgba(251, 191, 36, 0.4); }
+  }
+
+  /* SVG Arrow Overlay */
+  svg.arrow-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+    will-change: transform;
+    transform: translate3d(0,0,0);
+  }
+
+  .arrow-line {
+    transition: stroke-width 0.15s, filter 0.15s;
+  }
+
+  /* Active Arrows List */
+  .arrows-list {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .arrows-container {
+    max-height: 150px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .arrow-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-grid);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.74rem;
+    font-family: var(--mono);
+  }
+
+  .arrow-item:hover {
+    border-color: var(--accent);
+  }
+
+  .arrow-item span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .delete-arrow-btn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+
+  .delete-arrow-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .empty-note {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    font-style: italic;
+    padding: 10px 0;
+  }
+
+  .help-box {
+    margin-top: 20px;
+    font-size: 0.84rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .help-box b {
+    color: var(--text);
+  }
+
+  footer {
+    padding: 40px 0 60px;
+    text-align: center;
+    color: var(--text-faint);
+    font-family: var(--mono);
+    font-size: .76rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* Print Styles */
+  @media print {
+    body {
+      background: white !important;
+      color: black !important;
+      background-image: none !important;
+    }
+    header, .panel, .no-print, footer {
+      display: none !important;
+    }
+    .wrap {
+      max-width: 100% !important;
+      padding: 0 !important;
+    }
+    .app {
+      grid-template-columns: 1fr !important;
+      margin-top: 0 !important;
+    }
+    .canvas-wrapper {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+    table.pgrid {
+      page-break-inside: avoid;
+    }
+    td.plbl {
+      background: #f1f5f9 !important;
+      color: black !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+    .pcell {
+      border: 1px solid #cbd5e1 !important;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    .pcell.IF { background-color: #38bdf8 !important; }
+    .pcell.ID { background-color: #818cf8 !important; }
+    .pcell.EXE { background-color: #fbbf24 !important; }
+    .pcell.MEM { background-color: #f472b6 !important; }
+    .pcell.WB { background-color: #34d399 !important; }
+    .pcell.STALL { background-color: #e2e8f0 !important; border: 1px dashed #94a3b8 !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div>
+    <span class="kicker">ORCO · Herramienta de Cronogramas</span>
+    <h1>Cronograma de <em>Segmentación</em> Libre</h1>
+  </div>
+  <div class="header-actions">
+    <button id="theme-toggle" class="btn" title="Alternar tema claro/oscuro">🌓 Tema</button>
+    <button id="btn-print" class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="app">
+
+  <!-- CONTROLS PANEL -->
+  <div class="panel no-print">
+    <h2>Instrucciones</h2>
+    <textarea id="code" spellcheck="false" placeholder="Escribe tus instrucciones, una por línea..."></textarea>
+    
+    <div class="presets">
+      <button data-preset="load-use">Ejemplo: load-use</button>
+      <button data-preset="alu">Ejemplo: bypass ALU</button>
+      <button data-preset="clear">Vaciar todo</button>
+    </div>
+
+    <h2>Herramientas</h2>
+    <div class="brush-grid">
+      <button class="brush-btn selected" data-b="IF">
+        <span>IF</span> <span class="shortcut-tag">1</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="ID">
+        <span>ID</span> <span class="shortcut-tag">2</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="EXE">
+        <span>EX</span> <span class="shortcut-tag">3</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="MEM">
+        <span>MEM</span> <span class="shortcut-tag">4</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="WB">
+        <span>WB</span> <span class="shortcut-tag">5</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="STALL">
+        <span>Stall</span> <span class="shortcut-tag">S</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="ERASE">
+        <span>Borrar</span> <span class="shortcut-tag">E</span> <span class="color-dot"></span>
+      </button>
+      <button class="brush-btn" data-b="ARROW">
+        <span>Flecha</span> <span class="shortcut-tag">A</span> <span class="color-dot"></span>
+      </button>
+    </div>
+
+    <div class="control-group">
+      <div class="control-row">
+        <label>Ciclos (Columnas):</label>
+        <div class="col-selector">
+          <button class="btn" id="btn-dec-cols" style="padding: 2px 8px;">-</button>
+          <input type="number" id="o-cols" min="5" max="64" value="16" readonly>
+          <button class="btn" id="btn-inc-cols" style="padding: 2px 8px;">+</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Tamaño de celda:</label>
+        <select id="o-size" class="btn" style="padding: 4px 8px; font-family: var(--mono); font-size: 0.74rem;">
+          <option value="compact">Compacto</option>
+          <option value="medium" selected>Normal</option>
+          <option value="spacious">Grande</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-row" style="margin-top: 14px; gap: 8px;">
+      <button class="btn" id="btn-undo" style="flex: 1; justify-content: center;" disabled>↩️ Deshacer</button>
+      <button class="btn" id="btn-redo" style="flex: 1; justify-content: center;" disabled>↪️ Rehacer</button>
+    </div>
+
+    <!-- Active Arrows List -->
+    <div class="arrows-list">
+      <h2 style="font-size: 0.9rem; margin-bottom: 8px;">Caminos de Adelantamiento</h2>
+      <div class="arrows-container" id="arrows-container">
+        <!-- populated by js -->
+      </div>
+    </div>
+
+    <div class="help-box">
+      <p><b>Cómo usar:</b> Elige una etapa (IF/ID/EX...) y pinta en la cuadrícula haciendo clic o arrastrando. Para poner una flecha de adelantamiento, elige <b>Flecha</b>, haz clic en la celda origen y luego en la celda destino.</p>
+    </div>
+  </div>
+
+  <!-- CANVAS GRID PANEL -->
+  <div class="panel" style="padding: 12px;">
+    <div class="canvas-wrapper">
+      <div class="canvas-container">
+        <!-- SVG Overlay for arrows -->
+        <svg class="arrow-overlay" id="arrow-svg">
+          <defs>
+            <marker id="arrow-IF" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--if)"></path>
+            </marker>
+            <marker id="arrow-ID" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--id)"></path>
+            </marker>
+            <marker id="arrow-EXE" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--ex)"></path>
+            </marker>
+            <marker id="arrow-MEM" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--mem)"></path>
+            </marker>
+            <marker id="arrow-WB" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--wb)"></path>
+            </marker>
+            <marker id="arrow-default" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text-dim)"></path>
+            </marker>
+          </defs>
+          <g id="arrow-paths"></g>
+        </svg>
+
+        <!-- HTML Painting Grid -->
+        <div id="pgrid-box"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer>
+  ORCO · Herramienta de dibujo libre para cronogramas de segmentación RISC-V y otras arquitecturas.
+</footer>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const NS='http://www.w3.org/2000/svg';
+  
+  const ABBR={IF:'IF',ID:'ID',EXE:'EX',MEM:'MEM',WB:'WB',STALL:'−'};
+
+  const PRESETS = {
+    'load-use': {
+      instructions: [
+        'ld x1, 0(x2)',
+        'add x3, x2, x1',
+        'sub x5, x3, x6'
+      ],
+      nCols: 10,
+      grid: [
+        [null, 'IF', 'ID', 'EXE', 'MEM', 'WB', null, null, null, null, null],
+        [null, null, 'IF', 'ID', 'STALL', 'EXE', 'MEM', 'WB', null, null, null],
+        [null, null, null, 'IF', 'ID', 'STALL', 'EXE', 'MEM', 'WB', null, null]
+      ],
+      arrows: [
+        { fromRow: 0, fromCol: 4, toRow: 1, toCol: 5 }, // MEM to EXE
+        { fromRow: 1, fromCol: 5, toRow: 2, toCol: 6 }  // EXE to EXE
+      ]
+    },
+    'alu': {
+      instructions: [
+        'sub x1, x4, x5',
+        'add x3, x2, x1',
+        'sd x3, 8(x2)'
+      ],
+      nCols: 9,
+      grid: [
+        [null, 'IF', 'ID', 'EXE', 'MEM', 'WB', null, null, null, null],
+        [null, null, 'IF', 'ID', 'EXE', 'MEM', 'WB', null, null, null],
+        [null, null, null, 'IF', 'ID', 'EXE', 'MEM', 'WB', null, null]
+      ],
+      arrows: [
+        { fromRow: 0, fromCol: 3, toRow: 1, toCol: 4 }, // EXE to EXE
+        { fromRow: 1, fromCol: 4, toRow: 2, toCol: 5 }  // EXE to MEM
+      ]
+    },
+    'clear': {
+      instructions: [''],
+      nCols: 12,
+      grid: [[null, null, null, null, null, null, null, null, null, null, null, null, null]],
+      arrows: []
+    }
+  };
+
+  // State Variables
+  let nCols = 16;
+  let instructions = [''];
+  let grid = [[null]];
+  let arrows = [];
+  let brush = 'IF';
+  let pendingArrowStart = null;
+  let painting = false;
+  let paintVal = null;
+
+  // History Undo/Redo stacks
+  const history = [];
+  let historyIndex = -1;
+
+  /* ===================== INIT & STATE ===================== */
+
+  function loadTheme() {
+    let theme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  $('theme-toggle').onclick = () => {
+    let curr = document.documentElement.getAttribute('data-theme');
+    let theme = curr === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  };
+
+  function syncInstructionsAndGrid() {
+    const text = $('code').value;
+    const lines = text.split('\n');
+    
+    // Ensure at least one instruction line exists
+    const newInstrs = lines.length ? lines : [''];
+    
+    const newGrid = newInstrs.map((line, rIdx) => {
+      // If row exists in current grid, preserve it
+      if (rIdx < grid.length) {
+        // adjust length to match nCols
+        const row = grid[rIdx];
+        if (row.length <= nCols) {
+          return [...row, ...new Array(nCols - row.length + 1).fill(null)];
+        } else {
+          return row.slice(0, nCols + 1);
+        }
+      }
+      // Otherwise create a new row
+      return new Array(nCols + 1).fill(null);
+    });
+
+    // Remove arrows connecting to deleted rows
+    arrows = arrows.filter(a => a.fromRow < newInstrs.length && a.toRow < newInstrs.length);
+
+    instructions = newInstrs;
+    grid = newGrid;
+    renderAll();
+  }
+
+  function setCols(cols) {
+    if (cols < 5 || cols > 64) return;
+    nCols = cols;
+    $('o-cols').value = nCols;
+
+    // Adjust grid widths
+    grid = grid.map(row => {
+      if (row.length <= nCols) {
+        return [...row, ...new Array(nCols - row.length + 1).fill(null)];
+      } else {
+        return row.slice(0, nCols + 1);
+      }
+    });
+
+    // Remove arrows referencing truncated cols
+    arrows = arrows.filter(a => a.fromCol <= nCols && a.toCol <= nCols);
+
+    saveHistory();
+    renderAll();
+  }
+
+  function saveHistory() {
+    // Truncate any redo path if we are in the middle of undoing
+    if (historyIndex < history.length - 1) {
+      history.splice(historyIndex + 1);
+    }
+
+    const state = {
+      instructions: [...instructions],
+      grid: grid.map(row => [...row]),
+      arrows: arrows.map(a => ({...a})),
+      nCols: nCols
+    };
+
+    history.push(state);
+    if (history.length > 40) history.shift();
+    historyIndex = history.length - 1;
+
+    updateHistoryButtons();
+    saveToLocalStorage();
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      restoreState(history[historyIndex]);
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      restoreState(history[historyIndex]);
+    }
+  }
+
+  function restoreState(state) {
+    instructions = [...state.instructions];
+    grid = state.grid.map(row => [...row]);
+    arrows = state.arrows.map(a => ({...a}));
+    nCols = state.nCols;
+
+    $('code').value = instructions.join('\n');
+    $('o-cols').value = nCols;
+
+    renderAll();
+    updateHistoryButtons();
+    saveToLocalStorage();
+  }
+
+  function updateHistoryButtons() {
+    $('btn-undo').disabled = historyIndex <= 0;
+    $('btn-redo').disabled = historyIndex >= history.length - 1;
+  }
+
+  function saveToLocalStorage() {
+    const payload = {
+      instructions,
+      grid,
+      arrows,
+      nCols
+    };
+    localStorage.setItem('cronograma_state', JSON.stringify(payload));
+  }
+
+  function loadFromLocalStorage() {
+    const raw = localStorage.getItem('cronograma_state');
+    if (raw) {
+      try {
+        const payload = JSON.parse(raw);
+        instructions = payload.instructions || [''];
+        nCols = payload.nCols || 16;
+        grid = payload.grid || [[null]];
+        arrows = payload.arrows || [];
+        
+        $('code').value = instructions.join('\n');
+        $('o-cols').value = nCols;
+        
+        saveHistory();
+        renderAll();
+        return true;
+      } catch (e) {
+        console.error("Error loading localStorage state:", e);
+      }
+    }
+    return false;
+  }
+
+  /* ===================== RENDERING ===================== */
+
+  function renderGrid() {
+    const box = $('pgrid-box');
+    
+    let html = '<table class="pgrid"><tr><th class="plbl-header"></th>';
+    for (let c = 1; c <= nCols; c++) {
+      html += `<th>${c}</th>`;
+    }
+    html += '</tr>';
+
+    instructions.forEach((line, rIdx) => {
+      const cleanLine = line.trim() === '' ? `Instrucción ${rIdx}` : line;
+      html += `<tr><td class="plbl" title="${escapeHtml(line)}">${escapeHtml(cleanLine)}</td>`;
+      for (let c = 1; c <= nCols; c++) {
+        const val = grid[rIdx][c];
+        const isOrigin = pendingArrowStart && pendingArrowStart.r === rIdx && pendingArrowStart.c === c;
+        let cellClass = 'pcell';
+        if (val) cellClass += ` ${val}`;
+        if (isOrigin) cellClass += ' pending-origin';
+
+        html += `<td class="${cellClass}" data-i="${rIdx}" data-c="${c}">${val ? ABBR[val] : ''}</td>`;
+      }
+      html += '</tr>';
+    });
+    html += '</table>';
+    box.innerHTML = html;
+  }
+
+  function getCellEdgeCoords(rowIdx, colIdx, targetRowIdx, targetColIdx) {
+    const cell = document.querySelector(`.pcell[data-i="${rowIdx}"][data-c="${colIdx}"]`);
+    const targetCell = document.querySelector(`.pcell[data-i="${targetRowIdx}"][data-c="${targetColIdx}"]`);
+    const container = document.querySelector('.canvas-container');
+    if (!cell || !targetCell || !container) return null;
+
+    const r1 = cell.getBoundingClientRect();
+    const r2 = targetCell.getBoundingClientRect();
+    const cRect = container.getBoundingClientRect();
+
+    let x1, y1, x2, y2;
+    const dy = targetRowIdx - rowIdx;
+    const dx = targetColIdx - colIdx;
+
+    if (dy > 0) {
+      // Downwards
+      x1 = r1.left - cRect.left + r1.width / 2;
+      y1 = r1.bottom - cRect.top - 2;
+      x2 = r2.left - cRect.left + r2.width / 2;
+      y2 = r2.top - cRect.top + 2;
+    } else if (dy < 0) {
+      // Upwards
+      x1 = r1.left - cRect.left + r1.width / 2;
+      y1 = r1.top - cRect.top + 2;
+      x2 = r2.left - cRect.left + r2.width / 2;
+      y2 = r2.bottom - cRect.top - 2;
+    } else {
+      // Same row
+      y1 = r1.top - cRect.top + r1.height / 2;
+      y2 = r2.top - cRect.top + r2.height / 2;
+      if (dx > 0) {
+        x1 = r1.right - cRect.left - 2;
+        x2 = r2.left - cRect.left + 2;
+      } else {
+        x1 = r1.left - cRect.left + 2;
+        x2 = r2.right - cRect.left - 2;
+      }
+    }
+
+    return { x1, y1, x2, y2 };
+  }
+
+  function renderArrows() {
+    const pathGroup = $('arrow-paths');
+    pathGroup.innerHTML = '';
+
+    // First draw all halos for visual separation
+    arrows.forEach(a => {
+      const coords = getCellEdgeCoords(a.fromRow, a.fromCol, a.toRow, a.toCol);
+      if (!coords) return;
+
+      const { x1, y1, x2, y2 } = coords;
+      const my = (y1 + y2) / 2;
+      const pathD = `M ${x1},${y1} C ${x1},${my} ${x2},${my} ${x2},${y2}`;
+
+      const halo = document.createElementNS(NS, 'path');
+      halo.setAttribute('d', pathD);
+      halo.setAttribute('fill', 'none');
+      halo.setAttribute('stroke', 'var(--bg-grid)');
+      halo.setAttribute('stroke-width', '6.5');
+      halo.setAttribute('stroke-linecap', 'round');
+      pathGroup.appendChild(halo);
+    });
+
+    // Then draw all foreground arrows
+    arrows.forEach(a => {
+      const coords = getCellEdgeCoords(a.fromRow, a.fromCol, a.toRow, a.toCol);
+      if (!coords) return;
+
+      const { x1, y1, x2, y2 } = coords;
+      const my = (y1 + y2) / 2;
+      const pathD = `M ${x1},${y1} C ${x1},${my} ${x2},${my} ${x2},${y2}`;
+
+      const stage = grid[a.fromRow][a.fromCol];
+      let markerId = 'arrow-default';
+      let strokeColor = 'var(--text-dim)';
+      
+      if (stage && ['IF', 'ID', 'EXE', 'MEM', 'WB'].includes(stage)) {
+        markerId = `arrow-${stage}`;
+        strokeColor = `var(--${stage === 'EXE' ? 'ex' : stage.toLowerCase()})`;
+      }
+
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', pathD);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', strokeColor);
+      path.setAttribute('stroke-width', '3.2');
+      path.setAttribute('marker-end', `url(#${markerId})`);
+      path.setAttribute('data-id', a.id);
+      path.classList.add('arrow-line');
+
+      pathGroup.appendChild(path);
+    });
+
+    renderArrowsList();
+  }
+
+  function renderArrowsList() {
+    const container = $('arrows-container');
+    container.innerHTML = '';
+
+    if (arrows.length === 0) {
+      container.innerHTML = '<div class="empty-note">No hay flechas de adelantamiento. Usa la herramienta "Flecha" para dibujarlas.</div>';
+      return;
+    }
+
+    arrows.forEach(a => {
+      const fromLine = instructions[a.fromRow] ? instructions[a.fromRow].trim() : `I${a.fromRow}`;
+      const toLine = instructions[a.toRow] ? instructions[a.toRow].trim() : `I${a.toRow}`;
+      
+      const fromStage = grid[a.fromRow][a.fromCol] || 'Stage';
+      const toStage = grid[a.toRow][a.toCol] || 'Stage';
+
+      const item = document.createElement('div');
+      item.className = 'arrow-item';
+      item.setAttribute('data-id', a.id);
+      item.innerHTML = `
+        <span>
+          <b>I${a.fromRow}</b> (${fromStage} c${a.fromCol}) 
+          ➔ 
+          <b>I${a.toRow}</b> (${toStage} c${a.toCol})
+        </span>
+        <button class="delete-arrow-btn" data-id="${a.id}">✕</button>
+      `;
+
+      // Hover highlights matching SVG path
+      item.onmouseenter = () => {
+        const path = document.querySelector(`path.arrow-line[data-id="${a.id}"]`);
+        if (path) {
+          path.classList.add('highlighted');
+          path.setAttribute('stroke-width', '6');
+          path.style.filter = 'drop-shadow(0 0 6px var(--accent))';
+          path.parentNode.appendChild(path);
+        }
+      };
+      item.onmouseleave = () => {
+        const path = document.querySelector(`path.arrow-line[data-id="${a.id}"]`);
+        if (path) {
+          path.classList.remove('highlighted');
+          path.setAttribute('stroke-width', '3.2');
+          path.style.filter = 'none';
+        }
+      };
+
+      container.appendChild(item);
+    });
+
+    // Wire delete buttons
+    container.querySelectorAll('.delete-arrow-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        const id = btn.dataset.id;
+        arrows = arrows.filter(a => a.id !== id);
+        saveHistory();
+        renderAll();
+      };
+    });
+  }
+
+  function renderAll() {
+    renderGrid();
+    // Redraw arrows after table dimensions settle in DOM
+    setTimeout(renderArrows, 10);
+  }
+
+  // Handle window resizing to keep SVG arrows aligned
+  window.addEventListener('resize', renderArrows);
+
+  /* ===================== INTERACTIVE ACTIONS ===================== */
+
+  function applyBrush(r, c, isToggle) {
+    const val = grid[r][c];
+
+    if (brush === 'ARROW') {
+      if (!pendingArrowStart) {
+        // Set first click
+        pendingArrowStart = { r, c };
+        renderGrid();
+      } else {
+        // Set second click
+        if (pendingArrowStart.r !== r || pendingArrowStart.c !== c) {
+          const exists = arrows.some(a => 
+            a.fromRow === pendingArrowStart.r && 
+            a.fromCol === pendingArrowStart.c && 
+            a.toRow === r && 
+            a.toCol === c
+          );
+          if (!exists) {
+            arrows.push({
+              id: Date.now() + Math.random().toString(),
+              fromRow: pendingArrowStart.r,
+              fromCol: pendingArrowStart.c,
+              toRow: r,
+              toCol: c
+            });
+          }
+        }
+        pendingArrowStart = null;
+        saveHistory();
+        renderAll();
+      }
+      return null;
+    }
+
+    // Normal Stage Brush
+    let newVal;
+    if (brush === 'ERASE') {
+      newVal = null;
+    } else if (isToggle && val === brush) {
+      newVal = null;
+    } else {
+      newVal = brush;
+    }
+
+    grid[r][c] = newVal;
+    updateCellUI(r, c, newVal);
+    return newVal;
+  }
+
+  function updateCellUI(r, c, val) {
+    const cell = document.querySelector(`.pcell[data-i="${r}"][data-c="${c}"]`);
+    if (!cell) return;
+    cell.className = 'pcell';
+    if (val) {
+      cell.classList.add(val);
+      cell.textContent = ABBR[val];
+    } else {
+      cell.textContent = '';
+    }
+  }
+
+  function wireCanvas() {
+    const wrapper = $('pgrid-box');
+
+    wrapper.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return; // Only draw with left click!
+      
+      const cell = e.target.closest('.pcell');
+      if (!cell) return;
+      
+      const r = parseInt(cell.dataset.i);
+      const c = parseInt(cell.dataset.c);
+      
+      if (brush === 'ARROW') {
+        applyBrush(r, c, false);
+      } else {
+        painting = true;
+        paintVal = applyBrush(r, c, true);
+      }
+    });
+
+    wrapper.addEventListener('pointerover', e => {
+      const cell = e.target.closest('.pcell');
+      if (!cell) return;
+
+      const r = parseInt(cell.dataset.i);
+      const c = parseInt(cell.dataset.c);
+
+      if (painting) {
+        grid[r][c] = paintVal;
+        updateCellUI(r, c, paintVal);
+      } else {
+        highlightArrowsForCell(r, c);
+      }
+    });
+
+    wrapper.addEventListener('pointerout', e => {
+      const cell = e.target.closest('.pcell');
+      if (!cell) return;
+      clearArrowHighlights();
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (painting) {
+        painting = false;
+        saveHistory();
+        renderArrows(); // redraw in case stages changed arrow color
+      }
+    });
+  }
+
+  /* ===================== CONTROLS & WIRING ===================== */
+
+  // Textarea input syncing
+  let textInputTimer;
+  $('code').addEventListener('input', () => {
+    syncInstructionsAndGrid();
+    clearTimeout(textInputTimer);
+    textInputTimer = setTimeout(saveHistory, 800);
+  });
+
+  // Columns selector wiring
+  $('btn-dec-cols').onclick = () => setCols(nCols - 1);
+  $('btn-inc-cols').onclick = () => setCols(nCols + 1);
+
+  // Undo / Redo buttons
+  $('btn-undo').onclick = undo;
+  $('btn-redo').onclick = redo;
+
+  // Brush Selection click handlers
+  document.querySelectorAll('.brush-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.brush-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      brush = btn.dataset.b;
+      
+      // Cancel pending arrow click sequence when changing tools
+      if (brush !== 'ARROW' && pendingArrowStart) {
+        pendingArrowStart = null;
+        renderGrid();
+      }
+    };
+  });
+
+  // Keyboard hotkeys for tools
+  document.addEventListener('keydown', e => {
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT')) {
+      return; // Skip when typing in textarea or inputs
+    }
+
+    const keyMap = {
+      '1': 'IF',
+      '2': 'ID',
+      '3': 'EXE',
+      '4': 'MEM',
+      '5': 'WB',
+      's': 'STALL',
+      'S': 'STALL',
+      'e': 'ERASE',
+      'E': 'ERASE',
+      'a': 'ARROW',
+      'A': 'ARROW'
+    };
+
+    const targetBrush = keyMap[e.key];
+    if (targetBrush) {
+      const btn = document.querySelector(`.brush-btn[data-b="${targetBrush}"]`);
+      if (btn) btn.click();
+    }
+
+    // Ctrl+Z / Ctrl+Y undo redo
+    if (e.ctrlKey && e.key === 'z') {
+      e.preventDefault();
+      undo();
+    }
+    if (e.ctrlKey && e.key === 'y') {
+      e.preventDefault();
+      redo();
+    }
+  });
+
+  // Presets load wiring
+  document.querySelectorAll('.presets button').forEach(btn => {
+    btn.onclick = () => {
+      const pName = btn.dataset.preset;
+      loadPreset(pName);
+    };
+  });
+
+  function loadPreset(name) {
+    const p = PRESETS[name];
+    if (!p) return;
+
+    instructions = [...p.instructions];
+    nCols = p.nCols;
+
+    grid = instructions.map((_, rIdx) => {
+      const row = new Array(nCols + 1).fill(null);
+      if (p.grid && p.grid[rIdx]) {
+        for (let c = 1; c <= nCols; c++) {
+          row[c] = p.grid[rIdx][c] || null;
+        }
+      }
+      return row;
+    });
+
+    arrows = (p.arrows || []).map(a => ({
+      id: Date.now() + Math.random().toString(),
+      fromRow: a.fromRow,
+      fromCol: a.fromCol,
+      toRow: a.toRow,
+      toCol: a.toCol
+    }));
+
+    $('code').value = instructions.join('\n');
+    $('o-cols').value = nCols;
+
+    pendingArrowStart = null;
+    saveHistory();
+    renderAll();
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m] || m));
+  }
+
+  function highlightArrowsForCell(r, c) {
+    clearArrowHighlights();
+    arrows.forEach(a => {
+      if ((a.fromRow === r && a.fromCol === c) || (a.toRow === r && a.toCol === c)) {
+        const path = document.querySelector(`path.arrow-line[data-id="${a.id}"]`);
+        if (path) {
+          path.classList.add('highlighted');
+          path.setAttribute('stroke-width', '6');
+          path.style.filter = 'drop-shadow(0 0 6px var(--accent))';
+          path.parentNode.appendChild(path);
+        }
+        const item = document.querySelector(`.arrow-item[data-id="${a.id}"]`);
+        if (item) {
+          item.style.borderColor = 'var(--accent)';
+          item.style.background = 'var(--panel-hover)';
+        }
+      }
+    });
+  }
+
+  function clearArrowHighlights() {
+    document.querySelectorAll('path.arrow-line').forEach(path => {
+      path.classList.remove('highlighted');
+      path.setAttribute('stroke-width', '3.2');
+      path.style.filter = 'none';
+    });
+    document.querySelectorAll('.arrow-item').forEach(item => {
+      item.style.borderColor = '';
+      item.style.background = '';
+    });
+  }
+
+  function wireMiddleClickPan() {
+    let isPanning = false;
+    let startX = 0, startY = 0, startScrollLeft = 0, startScrollTop = 0;
+    
+    // Globally disable browser default middle-click autoscroll
+    window.addEventListener('mousedown', e => {
+      if (e.button === 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // Start panning on middle-click mousedown anywhere on the window
+    window.addEventListener('mousedown', e => {
+      if (e.button === 1) {
+        isPanning = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startScrollLeft = window.scrollX || document.documentElement.scrollLeft;
+        startScrollTop = window.scrollY || document.documentElement.scrollTop;
+        document.documentElement.style.cursor = 'grabbing';
+        document.body.style.cursor = 'grabbing';
+        
+        // Prevent table cells from receiving click/pointer events during panning
+        const table = document.querySelector('table.pgrid');
+        if (table) table.style.pointerEvents = 'none';
+      }
+    });
+
+    // Handle mouse move globally
+    window.addEventListener('mousemove', e => {
+      if (isPanning) {
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        
+        // Scroll the entire window in 2D (both horizontally and vertically)
+        window.scrollTo(startScrollLeft - dx, startScrollTop - dy);
+      }
+    });
+
+    // Stop panning globally
+    window.addEventListener('mouseup', e => {
+      if (isPanning && e.button === 1) {
+        isPanning = false;
+        document.documentElement.style.cursor = '';
+        document.body.style.cursor = '';
+        
+        const table = document.querySelector('table.pgrid');
+        if (table) table.style.pointerEvents = '';
+      }
+    });
+  }
+
+  /* ===================== STARTUP ===================== */
+  loadTheme();
+
+  // Load cell size setting
+  const savedSize = localStorage.getItem('cronograma_size') || 'medium';
+  $('o-size').value = savedSize;
+  document.documentElement.setAttribute('data-size', savedSize);
+
+  $('o-size').addEventListener('change', (e) => {
+    const size = e.target.value;
+    document.documentElement.setAttribute('data-size', size);
+    localStorage.setItem('cronograma_size', size);
+    renderAll();
+  });
+
+  wireCanvas();
+  wireMiddleClickPan();
+
+  const restored = loadFromLocalStorage();
+  if (!restored) {
+    loadPreset('load-use');
+  }
+
+</script>
+</body>
+</html>
