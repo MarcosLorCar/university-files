@@ -41,6 +41,8 @@ public class Utils {
         return new Floor(tiles, floorWidth, floorHeight);
     }
 
+    // Instead of what the lab specification says, here it's considered that the floor dimensions are part
+    // of the read data, as the first line. It wouldn't make sense to have it be independent values from the tiles.
     private static Floor generateTilesAndFile(File file) {
         System.out.println("Generating file: " + file.getName());
         int floorWidth = readPositiveInt("Enter floor width: ");
