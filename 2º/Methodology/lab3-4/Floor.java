@@ -7,7 +7,7 @@ public class Floor {
 
     public Floor(ArrayList<Tile> tiles, int width, int height) {
         placedTilesList = new ArrayList<>();
-        this.placedTiles = placedTiles = new int[width][height];
+        this.placedTiles = new int[width][height];
         for (int i=0; i<width; i++) {
             for (int j=0; j<height; j++) {
                 placedTiles[i][j] = 0;
