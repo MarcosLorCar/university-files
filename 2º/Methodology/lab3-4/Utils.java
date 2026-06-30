@@ -5,42 +5,16 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-public class P3_Sol {
-    static Scanner sc = new Scanner(System.in);
+public class Utils {
+    private static Scanner sc = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        File file = readFileName("File to read or generate: ");
-    
-        Floor floor;
+    public static Floor readOrGenerateFloor(String message) {
+        File file = readFileName(message);
 
         if (file.exists()) {
-            floor = readTilesFromFile(file);
+            return readTilesFromFile(file);
         } else {
-            floor = generateTilesAndFile(file);
-        }
-
-        printTiles(floor);
-
-        System.out.println("Solving with greedy algorithm.");
-
-        solveGreedyTiling(floor);
-
-        if (floor.hasFreeSpace()) {
-            System.out.println("Floor couldnt be fully solved.");
-        } else {
-            System.out.println("Floor fully solved.");
-        }
-
-        System.out.println("Floor after greedy algorithm:");
-        printFloor(floor);
-    }
-
-    private static void solveGreedyTiling(Floor floor) {
-        ArrayList<Tile> tiles = floor.getTiles();
-        tiles.sort((t1, t2) -> Integer.compare(t2.area(), t1.area()));
-
-        for (int i = 0; i < tiles.size(); i++) {
-            boolean success = floor.tryPlace(i);
+            return generateTilesAndFile(file);
         }
     }
 
@@ -57,7 +31,7 @@ public class P3_Sol {
                 String tileStr = sc.nextLine();
                 int width = Integer.parseInt(tileStr.split(" ")[0]);
                 int height = Integer.parseInt(tileStr.split(" ")[1]);
-                tiles.add(new Tile(width, height));
+                tiles.add(new Tile(width, height, tiles.size() + 1));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,13 +48,16 @@ public class P3_Sol {
         int numTiles = readPositiveInt("Enter number of tiles: ");
         int maxWidth = readPositiveInt("Enter max width of tiles: ");
         int maxHeight = readPositiveInt("Enter max height of tiles: ");
+
         ArrayList<Tile> tiles = new ArrayList<>();
         Random random = new Random();
+
         for (int i = 0; i < numTiles; i++) {
             int width = random.nextInt(maxWidth) + 1;
             int height = random.nextInt(maxHeight) + 1;
-            tiles.add(new Tile(width, height));
+            tiles.add(new Tile(width, height, i + 1));
         }
+
         try {
             file.createNewFile();
             PrintWriter writer = new PrintWriter(file);
@@ -94,6 +71,7 @@ public class P3_Sol {
         } catch (IOException e) {
             System.out.println("Failed to create file.");
         }
+
         return new Floor(tiles, floorWidth, floorHeight);
     }
 
@@ -113,37 +91,55 @@ public class P3_Sol {
     }
 
     private static File readFileName(String msg) {
-        File file;
         System.out.print(msg);
         String fileName = sc.nextLine();
-        file = new File(fileName);
-        return file;
+        return new File(fileName);
     }
 
-    private static void printFloor(Floor f) {
-        int maxPlacedIndex = 0;
+    public static void printFloor(Floor f) {
+        int maxPlacedId = 0;
+
         for (int i = 0; i < f.getHeight(); i++) {
             for (int j = 0; j < f.getWidth(); j++) {
                 int tileIndex = f.getTileIndex(j, i);
-                if (tileIndex > maxPlacedIndex) {
-                    maxPlacedIndex = tileIndex;
+                if (tileIndex > 0) {
+                    int tileId = f.getTiles().get(tileIndex - 1).getId();
+                    if (tileId > maxPlacedId) {
+                        maxPlacedId = tileId;
+                    }
                 }
             }
         }
-        int maxDigits = String.valueOf(maxPlacedIndex).length();
+
+        int maxDigits = String.valueOf(maxPlacedId).length();
+
         for (int i = 0; i < f.getHeight(); i++) {
             for (int j = 0; j < f.getWidth(); j++) {
-                System.out.printf("%" + maxDigits + "d ", f.getTileIndex(j, i));
+                int tileIndex = f.getTileIndex(j, i);
+                int displayValue = (tileIndex > 0) ? f.getTiles().get(tileIndex - 1).getId() : 0;
+                System.out.printf("%" + maxDigits + "d ", displayValue);
             }
             System.out.println();
         }
     }
 
-    private static void printTiles(Floor f) {
+    public static void printTiles(Floor f) {
         ArrayList<Tile> tiles = f.getTiles();
+
         for (int i = 0; i < tiles.size(); i++) {
             Tile t = tiles.get(i);
-            System.out.printf("#%d: %s\n", i + 1, t.toString());
+            System.out.printf("#%d: %s\n", t.getId(), t);
         }
+    }
+
+    public static void printSolutionResult(Floor floor, String algorithmName) {
+        if (floor.hasFreeSpace()) {
+            System.out.println("Floor couldnt be fully solved.");
+        } else {
+            System.out.println("Floor fully solved with " + floor.getPlacedTiles().size() + " tiles used.");
+        }
+
+        System.out.println("Floor after " + algorithmName + " algorithm:");
+        printFloor(floor);
     }
 }

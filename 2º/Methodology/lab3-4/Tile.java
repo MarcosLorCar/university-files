@@ -1,10 +1,12 @@
 public class Tile {
     private final int w;
     private final int h;
+    private final int id;
 
-    public Tile(int w, int h) {
+    public Tile(int w, int h, int id) {
         this.w = w;
         this.h = h;
+        this.id = id;
     }
 
     public int area() {
@@ -19,8 +21,12 @@ public class Tile {
         return h;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public Tile rotated() {
-        return new Tile(h, w);
+        return new Tile(h, w, id);
     }
 
     @Override

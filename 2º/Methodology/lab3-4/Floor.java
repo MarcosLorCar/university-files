@@ -3,8 +3,10 @@ import java.util.ArrayList;
 public class Floor {
     private int[][] placedTiles;
     private ArrayList<Tile> tiles;
+    private ArrayList<Tile> placedTilesList;
 
     public Floor(ArrayList<Tile> tiles, int width, int height) {
+        placedTilesList = new ArrayList<>();
         this.placedTiles = placedTiles = new int[width][height];
         for (int i=0; i<width; i++) {
             for (int j=0; j<height; j++) {
@@ -12,6 +14,17 @@ public class Floor {
             }
         }
         this.tiles = tiles;
+    }
+
+    public Floor(Floor floor, ArrayList<Tile> placedTiles) {
+        this.placedTilesList = placedTiles;
+        this.placedTiles = new int[floor.getWidth()][floor.getHeight()];
+        for (int i = 0; i < floor.getWidth(); i++) {
+            for (int j = 0; j < floor.getHeight(); j++) {
+                this.placedTiles[i][j] = floor.placedTiles[i][j];
+            }
+        }
+        this.tiles = floor.tiles;
     }
 
     public int getWidth() {
@@ -36,6 +49,10 @@ public class Floor {
         return tiles;
     }
 
+    public ArrayList<Tile> getPlacedTiles() {
+        return placedTilesList;
+    }
+
     public boolean tryPlace(int i) {
         Tile t = tiles.get(i);
         Tile tRot = t.rotated();
@@ -47,7 +64,17 @@ public class Floor {
         return success;
     }
 
-    private boolean tryPlaceWithDimensions(int i, int tileWidth, int tileHeight) {
+    public void removeTile(int i) {
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                if (placedTiles[x][y] == i + 1) {
+                    placedTiles[x][y] = 0;
+                }
+            }
+        }
+    }
+
+    public boolean tryPlaceWithDimensions(int i, int tileWidth, int tileHeight) {
         boolean success = false;
         for (int y = 0; y < getHeight() && !success; y++) {
             for (int x = 0; x < getWidth() && !success; x++) {
